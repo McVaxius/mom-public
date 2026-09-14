@@ -1,0 +1,19 @@
+[
+{
+  "Author": "DhogGPT",
+  "Name": "MOM",
+  "InternalName": "mom",
+  "AssemblyVersion": "0.0.0.1",
+  "Punchline": "Introduction and full-plugin installation guidance.",
+  "Description": "Open /mom for an introduction. Get the full plugin through Discord and install it with Aethertek Plugin Manager (APM).",
+  "ApplicableVersion": "any",
+  "DalamudApiLevel": 15,
+  "RepoUrl": "https://github.com/McVaxius/mom-public",
+  "IconUrl": "https://raw.githubusercontent.com/McVaxius/mom-public/main/icon.png",
+  "DownloadLinkInstall": "https://github.com/McVaxius/mom-public/releases/latest/download/latest.zip",
+  "DownloadLinkUpdate": "https://github.com/McVaxius/mom-public/releases/latest/download/latest.zip",
+  "DownloadLinkTesting": "https://github.com/McVaxius/mom-public/releases/latest/download/latest.zip",
+  "Tags": ["mom", "utility"],
+  "CategoryTags": ["utility"]
+}
+]

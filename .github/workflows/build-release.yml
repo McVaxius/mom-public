@@ -1,0 +1,70 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [main]
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+env:
+  PROJECT_FILE: mom.csproj
+  INTERNAL_NAME: mom
+  RELEASE_DIR: bin/x64/Release/mom
+
+jobs:
+  build:
+    runs-on: windows-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Download Dalamud API 15
+        shell: pwsh
+        run: |
+          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/api15/latest.zip -OutFile latest.zip
+          Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
+
+      - name: Build
+        shell: pwsh
+        run: |
+          dotnet restore -r win "${{ env.PROJECT_FILE }}"
+          dotnet build "${{ env.PROJECT_FILE }}" --configuration Release --no-restore -p:Platform=x64
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+      - name: Determine release version
+        id: get_version
+        shell: pwsh
+        run: |
+          if ("${{ github.ref_type }}" -eq "tag") {
+            $version = "${{ github.ref_name }}"
+          } else {
+            $manifestPath = Join-Path "${{ env.RELEASE_DIR }}" "${{ env.INTERNAL_NAME }}.json"
+            $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
+            if ($manifest -is [array]) {
+              $manifest = $manifest[0]
+            }
+            $version = "v$($manifest.AssemblyVersion)"
+          }
+          "version=$version" >> $env:GITHUB_OUTPUT
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.get_version.outputs.version }}
+          name: Release ${{ steps.get_version.outputs.version }}
+          draft: false
+          prerelease: false
+          files: |
+            ${{ env.RELEASE_DIR }}/latest.zip
+            ${{ env.RELEASE_DIR }}/${{ env.INTERNAL_NAME }}.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
