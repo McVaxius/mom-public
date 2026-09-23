@@ -2,7 +2,7 @@
   "Author": "DhogGPT",
   "Name": "mom",
   "InternalName": "mom",
-  "AssemblyVersion": "0.0.0.1",
+  "AssemblyVersion": "2.1.0.3",
   "Punchline": "MOM information and privately granted access.",
   "Description": "MOM is a free public front end. Additional functionality is available through privately granted access. Visit the community for access availability and support.",
   "ApplicableVersion": "any",
@@ -14,5 +14,10 @@
   ],
   "CategoryTags": [
     "utility"
-  ]
+  ],
+  "RepoUrl": "https://github.com/McVaxius/mom-public",
+  "IconUrl": "https://raw.githubusercontent.com/McVaxius/mom-public/main/icon.png",
+  "DownloadLinkInstall": "https://github.com/McVaxius/mom-public/releases/latest/download/latest.zip",
+  "DownloadLinkUpdate": "https://github.com/McVaxius/mom-public/releases/latest/download/latest.zip",
+  "DownloadLinkTesting": "https://github.com/McVaxius/mom-public/releases/latest/download/latest.zip"
 }

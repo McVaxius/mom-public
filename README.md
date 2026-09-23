@@ -11,13 +11,15 @@ Open `/mom` for information, community links, and access status. The public plug
 
 ## Install an access update
 
-1. Keep the public MOM plugin installed and enabled.
-2. Copy the publisher's direct `mom.zip` or `mom-v<version>.zip` access download link.
-3. Open `/apm`, include `mom` in the plugin list if needed, enable Advanced options, and confirm that you trust the publisher.
-4. Ctrl+click MOM's second refresh button to install the configuration/access package. The destination is MOM's `tasks` directory.
-5. Keep APM enabled until it finishes, then open `/mom`. Contact the publisher if the information window reports that access needs attention.
+Keep the updated public mom host installed and enabled. In `/apm`, include `mom` in the plugin list and confirm publisher trust. Copy the direct private ZIP link and click APM's global **Check clipboard for updates** button. The package contains `mom.Access.dll` and `mom.json`; APM places both in the host's `tasks` directory. Open `/mom` after the update completes.
 
-The first APM refresh button updates development-plugin installation files. Access updates use the second refresh button under Advanced options.
+The public host provides the access directory, validation and refresh IPC endpoints required by APM. The private plugin's **Check Updates** button uses APM's Automatic Updates option. Private versions advance independently of the public host version.
+
+## Build
+
+This repository contains the complete public host source, loader, public trust anchor and manifest validation. It builds without private source or files from `!cryptography`. With .NET 10 and Dalamud API 15 references available, run `dotnet build mom.csproj -c Release -p:Platform=x64`. The package is `bin/x64/Release/mom/latest.zip`; the existing `Z:\momp.bat` also copies it to this repository's `latest.zip`.
+
+Public release version: `2.1.0.2`. The CLR assembly identity remains `1.0.0.0` for private-module compatibility.
 
 ## License
 
