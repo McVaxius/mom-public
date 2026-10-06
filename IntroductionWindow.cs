@@ -88,8 +88,8 @@ internal sealed class IntroductionWindow : Window
             ImGui.Spacing();
             using (ui.Font(ImGui.GetContentRegionAvail().X < 300 * scale ? UiFontRole.Caption : UiFontRole.Action))
             {
-                if (UiStyle.NativeButton("Join Discord", ui.T("Join Discord"), new(-1, (ui.Compact ? 48 : 76) * scale), true, MaterialIcon.Chat)) Util.OpenLink(DiscordUrl);
-                if (UiStyle.NativeButton("Support on Ko-fi", ui.T("Support on Ko-fi"), new(-1, (ui.Compact ? 48 : 76) * scale), icon: MaterialIcon.Heart)) Util.OpenLink(SupportUrl);
+                if (CommunityButton("Join Discord", ui.T("Join Discord"), new(-1, (ui.Compact ? 48 : 76) * scale), discord: true)) Util.OpenLink(DiscordUrl);
+                if (CommunityButton("Support on Ko-fi", ui.T("Support on Ko-fi"), new(-1, (ui.Compact ? 48 : 76) * scale), discord: false)) Util.OpenLink(SupportUrl);
             }
             ui.Paragraph("SupportBoundary");
         });
@@ -114,6 +114,46 @@ internal sealed class IntroductionWindow : Window
         ImGui.PushStyleColor(ImGuiCol.Text, loader.Failed ? UiStyle.Warning : loader.Module != null ? UiStyle.Ready : MaterialTheme.Current.Colors.OnSurfaceVariant);
         ui.Text(ui.T("Access status") + "  ·  " + ui.T(loader.Failed ? "Access needs attention" : loader.Module != null ? "Active" : "No access module installed"));
         ImGui.PopStyleColor();
+    }
+    private static bool CommunityButton(string native, string visible, Vector2 size, bool discord)
+    {
+        var colors = MaterialTheme.Current.Colors;
+        var fontSize = ImGui.GetFontSize();
+        var logoSize = fontSize * 2;
+        var logoWidth = fontSize * 2.4f;
+        var textSize = ImGui.CalcTextSize(visible);
+        size.X = MaterialLayout.FitNextItemWidth(size.X, textSize.X + ImGui.GetStyle().FramePadding.X * 2 + logoWidth);
+        if (discord)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Button, colors.PrimaryContainer);
+            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .25f));
+            ImGui.PushStyleColor(ImGuiCol.ButtonActive, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .4f));
+        }
+        ImGui.PushStyleColor(ImGuiCol.Text, Vector4.Zero);
+        bool pressed;
+        try { pressed = ImGui.Button(native, size); }
+        finally
+        {
+            ImGui.PopStyleColor();
+            if (discord) ImGui.PopStyleColor(3);
+        }
+        var min = ImGui.GetItemRectMin();
+        var max = ImGui.GetItemRectMax();
+        var centerY = (min.Y + max.Y) * .5f;
+        var x = min.X + (max.X - min.X - textSize.X - logoWidth) * .5f;
+        var alpha = ImGui.GetStyle().Alpha;
+        var ink = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
+        ink.W *= alpha;
+        var drawList = ImGui.GetWindowDrawList();
+        drawList.PushClipRect(min, max, true);
+        try
+        {
+            var origin = new Vector2(x, centerY - logoSize * .5f);
+            MaterialIcons.Draw(discord ? MaterialIcon.Discord : MaterialIcon.KoFi, drawList, origin, logoSize, Vector4.One, alpha);
+            drawList.AddText(ImGui.GetFont(), fontSize, new(x + logoWidth, centerY - textSize.Y * .5f), ImGui.ColorConvertFloat4ToU32(ink), visible);
+        }
+        finally { drawList.PopClipRect(); }
+        return pressed;
     }
     private void Card(string id, uint root, float width, float height, MaterialIcon symbol, Action draw)
     {
