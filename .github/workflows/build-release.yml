@@ -34,6 +34,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: McVaxius/aethertekUI
+          # Required library revision: shared community icons and current window helpers.
+          ref: d00edf3b80fe16357515a9882de3ee4c6f4a2f2b
           path: aethertekUI
           ssh-key: ${{ secrets.AETHERTEKUI_DEPLOY_KEY }}
           persist-credentials: false
