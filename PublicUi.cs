@@ -14,6 +14,7 @@ internal sealed class PublicUi : IDisposable
         ("es", "Español"), ("it", "Italiano"), ("ru", "Русский"), ("ja", "日本語"), ("ko", "한국어"), ("zh-Hans", "简体中文"),
         ("vi", "Tiếng Việt"), ("pt-BR", "Português (Brasil)"), ("id", "Bahasa Indonesia"), ("pl", "Polski"), ("tr", "Türkçe")];
     private readonly PublicPreferences preferences;
+    private readonly MaterialWindowOpacity fontStatusOpacity = new();
     private readonly ManagedUiFonts fonts;
     private readonly Dictionary<string, ResourceSet> sets = [];
     private ResourceSet current = null!;
@@ -56,12 +57,17 @@ internal sealed class PublicUi : IDisposable
         {
             if (!loggedFontIssue && fonts.Error is { } error) { report(error); loggedFontIssue = true; }
             ManagedUiFonts.DrawStatus(T(fonts.Error == null
-                ? "Preparing MOM interface fonts..." : "MOM interface fonts are unavailable. See the Dalamud log.")); return;
+                ? "Preparing MOM interface fonts..." : "MOM interface fonts are unavailable. See the Dalamud log."));
+            ApplyWindowOpacity(fontStatusOpacity, "MOM##FontStatus"); return;
         }
         using var geometry = UiStyle.Geometry(ImGui.GetIO().FontGlobalScale, true);
         using var body = fonts.Push(UiFontRole.Body);
         draw();
     }
+    internal void ApplyWindowOpacity(MaterialWindowOpacity opacity, string windowName)
+        => opacity.Apply(windowName, preferences.UiWindowOpacityPercent / 100f, preferences.UiTransparencyEnabled,
+            preferences.UiAutoFade, preferences.UiFadedOpacityPercent / 100f, preferences.UiUnfocusedDelaySeconds);
+
     internal void Appearance()
     {
         if (draftAccent != preferences.Accent)
@@ -70,24 +76,81 @@ internal sealed class PublicUi : IDisposable
             var rgb = UiStyle.Rgb(draftAccent);
             accentDraft = new(rgb.X, rgb.Y, rgb.Z);
         }
+        var root = ImGui.GetID("");
         var language = sets.ContainsKey(preferences.Language) ? preferences.Language : "en";
         using var action = Font(ImGui.GetWindowSize().X < 620 * MaterialTheme.Metrics.Scale ? UiFontRole.Caption : UiFontRole.Action);
         using var controls = MaterialControls.Push();
-        var labels = new MaterialAppearanceLabels(T("Color"), T("Language"), T("Teal"), T("Blue"), T("Pink"), T("Custom RGB"));
-        var accentChanged = MaterialAppearanceSelector.DrawAccent("mom-public-appearance", ref accentDraft, labels, frameCompact ? 28 : 40);
-        var selectedName = Languages.Single(l => l.Code == language).Name;
-        var minimum = MathF.Ceiling(ImGui.CalcTextSize(selectedName).X + MaterialControls.Metrics.Height
-            + 3 * MaterialControls.Metrics.Gap + Math.Min(MaterialControls.Metrics.IconSize, MaterialControls.Metrics.Height));
-        SameLineIfFits(minimum);
-        var languageChanged = MaterialAppearanceSelector.DrawLanguage("mom-public-appearance", ref language,
-            new(Languages.Select(l => new MaterialOption<string>(l.Code, l.Code, l.Name)).ToArray()), frameCompact ? 130 : 220);
-        if (accentChanged) preferences.Accent = UiStyle.Pack(accentDraft);
-        if (languageChanged) preferences.Language = language;
-        SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + ImGui.CalcTextSize("C").X);
-        var compact = preferences.Compact;
-        if (ImGui.Checkbox("C##mom-public-compact", ref compact)) { preferences.Compact = compact; preferences.Save(); }
-        if (ImGui.IsItemHovered()) ImGui.SetTooltip(T("Compact mode"));
-        if (accentChanged || languageChanged) preferences.Save();
+        var options = new MaterialOptions<string>(Languages.Select(l => new MaterialOption<string>(l.Code, l.Code, l.Name)).ToArray());
+        if (preferences.UiLanguageVisibleOnMainWindow)
+        {
+            var languageChanged = MaterialAppearanceSelector.DrawLanguage("mom-public-appearance", ref language, options, frameCompact ? 130 : 220);
+            if (languageChanged) { preferences.Language = language; preferences.Save(); }
+        }
+        if (preferences.UiCompactVisibleOnMainWindow)
+        {
+            SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + ImGui.CalcTextSize("C").X);
+            var compact = preferences.Compact;
+            if (ImGui.Checkbox("C##mom-public-compact", ref compact)) { preferences.Compact = compact; preferences.Save(); }
+            if (ImGui.IsItemHovered()) ImGui.SetTooltip(T("Compact mode"));
+        }
+        SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + ImGui.CalcTextSize(T("Transparency")).X);
+        var enabled = preferences.UiTransparencyEnabled;
+        if (ImGui.Checkbox(T("Transparency") + "###window-transparency-main", ref enabled))
+        { preferences.UiTransparencyEnabled = enabled; preferences.Save(); }
+        SameLineIfFits(MaterialControls.Metrics.Height);
+        if (MaterialButton.IconButton("window-settings", MaterialIcon.Settings))
+            ImGui.OpenPopup("mom-public-window-appearance");
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip(T("Window appearance"));
+        ImGui.SetNextWindowSize(new Vector2(0, 0), ImGuiCond.Appearing);
+        if (!ImGui.BeginPopup("mom-public-window-appearance")) return;
+        ImGui.TextUnformatted(T("Window appearance")); ImGui.Separator();
+        // Keep the moved colour action on its original root; new settings controls own popup IDs.
+        ImGuiP.PushOverrideID(root);
+        var accentChanged = MaterialAppearanceSelector.DrawAccent("mom-public-appearance", ref accentDraft,
+            new(T("Color"), T("Language"), T("Teal"), T("Blue"), T("Pink"), T("Custom RGB")), frameCompact ? 28 : 40);
+        ImGui.PopID();
+        if (accentChanged) { preferences.Accent = UiStyle.Pack(accentDraft); preferences.Save(); }
+        var settingsCompact = preferences.Compact;
+        if (ImGui.Checkbox(T("Compact mode") + "###window-compact-settings", ref settingsCompact))
+        { preferences.Compact = settingsCompact; preferences.Save(); }
+        if (MaterialAppearanceSelector.DrawLanguage("mom-public-settings", ref language, options, 180))
+        { preferences.Language = language; preferences.Save(); }
+        DrawWindowSettings();
+        ImGui.EndPopup();
+    }
+
+    private void DrawWindowSettings()
+    {
+        var changed = false;
+        var compactVisible = preferences.UiCompactVisibleOnMainWindow;
+        if (ImGui.Checkbox(T("Compact visible on main window") + "###window-compact-visible", ref compactVisible))
+        { preferences.UiCompactVisibleOnMainWindow = compactVisible; changed = true; }
+        var languageVisible = preferences.UiLanguageVisibleOnMainWindow;
+        if (ImGui.Checkbox(T("Language visible on main window") + "###window-language-visible", ref languageVisible))
+        { preferences.UiLanguageVisibleOnMainWindow = languageVisible; changed = true; }
+        var enabled = preferences.UiTransparencyEnabled;
+        if (ImGui.Checkbox(T("Transparency") + "###window-transparency", ref enabled))
+        { preferences.UiTransparencyEnabled = enabled; changed = true; }
+        ImGui.BeginDisabled(!preferences.UiTransparencyEnabled);
+        ImGui.SetNextItemWidth(96 * MaterialTheme.Metrics.Scale);
+        var normal = preferences.UiWindowOpacityPercent;
+        if (ImGui.InputInt(T("Opacity (%)") + "###window-opacity", ref normal))
+        { preferences.UiWindowOpacityPercent = normal; changed = true; }
+        var autoFade = preferences.UiAutoFade;
+        if (ImGui.Checkbox(T("Auto-fade when unfocused") + "###window-auto-fade", ref autoFade))
+        { preferences.UiAutoFade = autoFade; changed = true; }
+        ImGui.BeginDisabled(!preferences.UiAutoFade);
+        ImGui.SetNextItemWidth(96 * MaterialTheme.Metrics.Scale);
+        var faded = preferences.UiFadedOpacityPercent;
+        if (ImGui.InputInt(T("Unfocused opacity (%)") + "###window-faded-opacity", ref faded))
+        { preferences.UiFadedOpacityPercent = faded; changed = true; }
+        ImGui.SetNextItemWidth(96 * MaterialTheme.Metrics.Scale);
+        var delay = preferences.UiUnfocusedDelaySeconds;
+        if (ImGui.InputInt(T("Unfocused delay (seconds)") + "###window-unfocused-delay", ref delay))
+        { preferences.UiUnfocusedDelaySeconds = delay; changed = true; }
+        ImGui.EndDisabled();
+        ImGui.EndDisabled();
+        if (changed) preferences.Save();
     }
     private static void SameLineIfFits(float width)
     {

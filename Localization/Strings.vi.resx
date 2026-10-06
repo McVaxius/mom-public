@@ -42,4 +42,12 @@
   <data name="ShellFinish" xml:space="preserve"><value>Giữ APM được bật cho đến khi cập nhật hoàn tất. Plugin đầy đủ sẽ thay phần giới thiệu này và mở bằng /mom.</value></data>
   <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>Đang chuẩn bị phông chữ giao diện MOM...</value></data>
   <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>Không thể sử dụng phông chữ giao diện MOM. Xem nhật ký Dalamud.</value></data>
+  <data name="Window appearance" xml:space="preserve"><value>Giao diện cửa sổ</value></data>
+  <data name="Compact visible on main window" xml:space="preserve"><value>Hiển thị chế độ gọn trên cửa sổ chính</value></data>
+  <data name="Language visible on main window" xml:space="preserve"><value>Hiển thị lựa chọn ngôn ngữ trên cửa sổ chính</value></data>
+  <data name="Transparency" xml:space="preserve"><value>Độ trong suốt</value></data>
+  <data name="Opacity (%)" xml:space="preserve"><value>Độ đục (%)</value></data>
+  <data name="Auto-fade when unfocused" xml:space="preserve"><value>Tự giảm độ đục khi mất tiêu điểm</value></data>
+  <data name="Unfocused opacity (%)" xml:space="preserve"><value>Độ đục khi mất tiêu điểm (%)</value></data>
+  <data name="Unfocused delay (seconds)" xml:space="preserve"><value>Độ trễ khi mất tiêu điểm (giây)</value></data>
 </root>

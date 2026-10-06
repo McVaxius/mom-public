@@ -42,4 +42,12 @@
   <data name="ShellFinish" xml:space="preserve"><value>Güncelleme tamamlanana kadar APM'yi etkin tutun. Tam eklenti bu tanıtımın yerini alır ve /mom ile açılır.</value></data>
   <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>MOM arayüz yazı tipleri hazırlanıyor...</value></data>
   <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>MOM arayüz yazı tipleri kullanılamıyor. Dalamud günlüğüne bakın.</value></data>
+  <data name="Window appearance" xml:space="preserve"><value>Pencere görünümü</value></data>
+  <data name="Compact visible on main window" xml:space="preserve"><value>Ana pencerede kompakt modu göster</value></data>
+  <data name="Language visible on main window" xml:space="preserve"><value>Ana pencerede dil seçimini göster</value></data>
+  <data name="Transparency" xml:space="preserve"><value>Saydamlık</value></data>
+  <data name="Opacity (%)" xml:space="preserve"><value>Opaklık (%)</value></data>
+  <data name="Auto-fade when unfocused" xml:space="preserve"><value>Odak yokken otomatik soldur</value></data>
+  <data name="Unfocused opacity (%)" xml:space="preserve"><value>Odak yokken opaklık (%)</value></data>
+  <data name="Unfocused delay (seconds)" xml:space="preserve"><value>Odak kaybı gecikmesi (saniye)</value></data>
 </root>

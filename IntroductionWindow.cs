@@ -12,6 +12,7 @@ namespace mom.PublicShell;
 internal sealed class IntroductionWindow : Window
 {
     private readonly AethertekUI.Dalamud.MaterialWindowMotion motion = new();
+    private readonly MaterialWindowOpacity windowOpacity = new();
     private const string DiscordUrl = "https://discord.gg/VsXqydsvpu";
     private const string SupportUrl = "https://ko-fi.com/mcvaxius";
     private readonly ISharedImmediateTexture icon;
@@ -28,7 +29,11 @@ internal sealed class IntroductionWindow : Window
         icon = textures.GetFromFile(Path.Combine(pi.AssemblyLocation.DirectoryName!, "icon.png"));
     }
     public override void PreDraw() => motion.Prepare(this, reducedMotion: false, roundedCorners: true);
-    public override void PostDraw() => motion.Restore(this);
+    public override void PostDraw()
+    {
+        motion.Restore(this);
+        ui.ApplyWindowOpacity(windowOpacity, WindowName);
+    }
 
     public override void Draw()
     {

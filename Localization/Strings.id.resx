@@ -42,4 +42,12 @@
   <data name="ShellFinish" xml:space="preserve"><value>Biarkan APM aktif sampai pembaruan selesai. Plugin lengkap menggantikan pengenalan ini dan dibuka dengan /mom.</value></data>
   <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>Menyiapkan font antarmuka MOM...</value></data>
   <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>Font antarmuka MOM tidak tersedia. Lihat log Dalamud.</value></data>
+  <data name="Window appearance" xml:space="preserve"><value>Tampilan jendela</value></data>
+  <data name="Compact visible on main window" xml:space="preserve"><value>Tampilkan mode ringkas di jendela utama</value></data>
+  <data name="Language visible on main window" xml:space="preserve"><value>Tampilkan pilihan bahasa di jendela utama</value></data>
+  <data name="Transparency" xml:space="preserve"><value>Transparansi</value></data>
+  <data name="Opacity (%)" xml:space="preserve"><value>Opasitas (%)</value></data>
+  <data name="Auto-fade when unfocused" xml:space="preserve"><value>Redupkan otomatis saat tidak fokus</value></data>
+  <data name="Unfocused opacity (%)" xml:space="preserve"><value>Opasitas saat tidak fokus (%)</value></data>
+  <data name="Unfocused delay (seconds)" xml:space="preserve"><value>Jeda saat tidak fokus (detik)</value></data>
 </root>

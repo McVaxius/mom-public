@@ -42,4 +42,12 @@
   <data name="ShellFinish" xml:space="preserve"><value>Mantieni APM attivo fino al termine. Il plugin completo sostituisce questa introduzione e si apre con /mom.</value></data>
   <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>Preparazione dei caratteri dell'interfaccia MOM...</value></data>
   <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>I caratteri dell'interfaccia MOM non sono disponibili. Consulta il registro di Dalamud.</value></data>
+  <data name="Window appearance" xml:space="preserve"><value>Aspetto della finestra</value></data>
+  <data name="Compact visible on main window" xml:space="preserve"><value>Mostra la modalità compatta nella finestra principale</value></data>
+  <data name="Language visible on main window" xml:space="preserve"><value>Mostra la lingua nella finestra principale</value></data>
+  <data name="Transparency" xml:space="preserve"><value>Trasparenza</value></data>
+  <data name="Opacity (%)" xml:space="preserve"><value>Opacità (%)</value></data>
+  <data name="Auto-fade when unfocused" xml:space="preserve"><value>Sfuma automaticamente senza focus</value></data>
+  <data name="Unfocused opacity (%)" xml:space="preserve"><value>Opacità senza focus (%)</value></data>
+  <data name="Unfocused delay (seconds)" xml:space="preserve"><value>Ritardo senza focus (secondi)</value></data>
 </root>
