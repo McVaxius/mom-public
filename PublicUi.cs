@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Numerics;
 using System.Resources;
 using AethertekUI;
+using AethertekUI.Dalamud;
+using Dalamud.Plugin.Services;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Plugin;
 
@@ -12,10 +14,11 @@ internal sealed class PublicUi : IDisposable
 {
     internal static readonly (string Code, string Name)[] Languages = [("en", "English"), ("de", "Deutsch"), ("fr", "Français"),
         ("es", "Español"), ("it", "Italiano"), ("ru", "Русский"), ("ja", "日本語"), ("ko", "한국어"), ("zh-Hans", "简体中文"),
-        ("vi", "Tiếng Việt"), ("pt-BR", "Português (Brasil)"), ("id", "Bahasa Indonesia"), ("pl", "Polski"), ("tr", "Türkçe")];
+        ("vi", "Tiếng Việt"), ("pt-BR", "Português (Brasil)"), ("id", "Bahasa Indonesia"), ("pl", "Polski"), ("tr", "Türkçe"), ("hi", "हिन्दी")];
     private readonly PublicPreferences preferences;
     private readonly MaterialWindowOpacity fontStatusOpacity = new();
     private readonly ManagedUiFonts fonts;
+    private readonly MaterialTextHost shapedText;
     private readonly Dictionary<string, ResourceSet> sets = [];
     private ResourceSet current = null!;
     private MaterialTheme? theme;
@@ -24,9 +27,9 @@ internal sealed class PublicUi : IDisposable
     private Vector3 accentDraft;
     private bool frameCompact;
     private bool loggedFontIssue;
-    internal PublicUi(IDalamudPluginInterface pi)
+    internal PublicUi(IDalamudPluginInterface pi, ITextureProvider textures)
     {
-        preferences = new(pi); fonts = new(pi.UiBuilder, "MOM public interface");
+        preferences = new(pi); shapedText = new(textures); fonts = new(pi.UiBuilder, "MOM public interface", shapedText.Renderer);
         foreach (var language in Languages)
         {
             var stream = typeof(PublicUi).Assembly.GetManifestResourceStream("mom.PublicShell.Strings." + language.Code + ".resources")
@@ -43,6 +46,7 @@ internal sealed class PublicUi : IDisposable
     internal bool Compact => frameCompact;
     internal void Draw(Action draw, Action<Exception> report)
     {
+        using var shaping = shapedText.Push();
         preferences.Reload();
         var language = sets.ContainsKey(preferences.Language) ? preferences.Language : "en";
         current = sets[language];
@@ -88,22 +92,22 @@ internal sealed class PublicUi : IDisposable
         }
         if (preferences.UiCompactVisibleOnMainWindow)
         {
-            SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + ImGui.CalcTextSize("C").X);
+            SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + MaterialText.Measure("C").X);
             var compact = preferences.Compact;
-            if (ImGui.Checkbox("C##mom-public-compact", ref compact)) { preferences.Compact = compact; preferences.Save(); }
-            if (ImGui.IsItemHovered()) ImGui.SetTooltip(T("Compact mode"));
+            if (UiStyle.NativeCheckbox("C##mom-public-compact", ref compact)) { preferences.Compact = compact; preferences.Save(); }
+            if (ImGui.IsItemHovered()) MaterialText.SetTooltip(T("Compact mode"));
         }
-        SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + ImGui.CalcTextSize(T("Transparency")).X);
+        SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + MaterialText.Measure(T("Transparency")).X);
         var enabled = preferences.UiTransparencyEnabled;
-        if (ImGui.Checkbox(T("Transparency") + "###window-transparency-main", ref enabled))
+        if (UiStyle.NativeCheckbox(T("Transparency") + "###window-transparency-main", ref enabled))
         { preferences.UiTransparencyEnabled = enabled; preferences.Save(); }
         SameLineIfFits(MaterialControls.Metrics.Height);
         if (MaterialButton.IconButton("window-settings", MaterialIcon.Settings))
             ImGui.OpenPopup("mom-public-window-appearance");
-        if (ImGui.IsItemHovered()) ImGui.SetTooltip(T("Window appearance"));
+        if (ImGui.IsItemHovered()) MaterialText.SetTooltip(T("Window appearance"));
         ImGui.SetNextWindowSize(new Vector2(0, 0), ImGuiCond.Appearing);
         if (!ImGui.BeginPopup("mom-public-window-appearance")) return;
-        ImGui.TextUnformatted(T("Window appearance")); ImGui.Separator();
+        MaterialText.Text(T("Window appearance")); ImGui.Separator();
         // Keep the moved colour action on its original root; new settings controls own popup IDs.
         ImGuiP.PushOverrideID(root);
         var accentChanged = MaterialAppearanceSelector.DrawAccent("mom-public-appearance", ref accentDraft,
@@ -111,7 +115,7 @@ internal sealed class PublicUi : IDisposable
         ImGui.PopID();
         if (accentChanged) { preferences.Accent = UiStyle.Pack(accentDraft); preferences.Save(); }
         var settingsCompact = preferences.Compact;
-        if (ImGui.Checkbox(T("Compact mode") + "###window-compact-settings", ref settingsCompact))
+        if (UiStyle.NativeCheckbox(T("Compact mode") + "###window-compact-settings", ref settingsCompact))
         { preferences.Compact = settingsCompact; preferences.Save(); }
         if (MaterialAppearanceSelector.DrawLanguage("mom-public-settings", ref language, options, 180))
         { preferences.Language = language; preferences.Save(); }
@@ -123,30 +127,30 @@ internal sealed class PublicUi : IDisposable
     {
         var changed = false;
         var compactVisible = preferences.UiCompactVisibleOnMainWindow;
-        if (ImGui.Checkbox(T("Compact visible on main window") + "###window-compact-visible", ref compactVisible))
+        if (UiStyle.NativeCheckbox(T("Compact visible on main window") + "###window-compact-visible", ref compactVisible))
         { preferences.UiCompactVisibleOnMainWindow = compactVisible; changed = true; }
         var languageVisible = preferences.UiLanguageVisibleOnMainWindow;
-        if (ImGui.Checkbox(T("Language visible on main window") + "###window-language-visible", ref languageVisible))
+        if (UiStyle.NativeCheckbox(T("Language visible on main window") + "###window-language-visible", ref languageVisible))
         { preferences.UiLanguageVisibleOnMainWindow = languageVisible; changed = true; }
         var enabled = preferences.UiTransparencyEnabled;
-        if (ImGui.Checkbox(T("Transparency") + "###window-transparency", ref enabled))
+        if (UiStyle.NativeCheckbox(T("Transparency") + "###window-transparency", ref enabled))
         { preferences.UiTransparencyEnabled = enabled; changed = true; }
         ImGui.BeginDisabled(!preferences.UiTransparencyEnabled);
         ImGui.SetNextItemWidth(96 * MaterialTheme.Metrics.Scale);
         var normal = preferences.UiWindowOpacityPercent;
-        if (ImGui.InputInt(T("Opacity (%)") + "###window-opacity", ref normal))
+        if (UiStyle.NativeInputInt(T("Opacity (%)") + "###window-opacity", ref normal))
         { preferences.UiWindowOpacityPercent = normal; changed = true; }
         var autoFade = preferences.UiAutoFade;
-        if (ImGui.Checkbox(T("Auto-fade when unfocused") + "###window-auto-fade", ref autoFade))
+        if (UiStyle.NativeCheckbox(T("Auto-fade when unfocused") + "###window-auto-fade", ref autoFade))
         { preferences.UiAutoFade = autoFade; changed = true; }
         ImGui.BeginDisabled(!preferences.UiAutoFade);
         ImGui.SetNextItemWidth(96 * MaterialTheme.Metrics.Scale);
         var faded = preferences.UiFadedOpacityPercent;
-        if (ImGui.InputInt(T("Unfocused opacity (%)") + "###window-faded-opacity", ref faded))
+        if (UiStyle.NativeInputInt(T("Unfocused opacity (%)") + "###window-faded-opacity", ref faded))
         { preferences.UiFadedOpacityPercent = faded; changed = true; }
         ImGui.SetNextItemWidth(96 * MaterialTheme.Metrics.Scale);
         var delay = preferences.UiUnfocusedDelaySeconds;
-        if (ImGui.InputInt(T("Unfocused delay (seconds)") + "###window-unfocused-delay", ref delay))
+        if (UiStyle.NativeInputInt(T("Unfocused delay (seconds)") + "###window-unfocused-delay", ref delay))
         { preferences.UiUnfocusedDelaySeconds = delay; changed = true; }
         ImGui.EndDisabled();
         ImGui.EndDisabled();
@@ -168,8 +172,8 @@ internal sealed class PublicUi : IDisposable
     {
         var window = ImGuiP.GetCurrentWindow();
         ImGui.PushTextWrapPos(window.Size.X - window.WindowPadding.X - window.ScrollbarSizes.X + window.Scroll.X);
-        ImGui.TextUnformatted(text);
+        MaterialText.Text(text);
         ImGui.PopTextWrapPos();
     }
-    public void Dispose() { fonts.Dispose(); foreach (var set in sets.Values) set.Dispose(); }
+    public void Dispose() { fonts.Dispose(); shapedText.Dispose(); foreach (var set in sets.Values) set.Dispose(); }
 }

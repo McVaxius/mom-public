@@ -3,7 +3,7 @@
     "Author": "DhogGPT",
     "Name": "MOM",
     "InternalName": "mom",
-    "AssemblyVersion": "3.0.0.0",
+    "AssemblyVersion": "4.0.0.0",
     "Punchline": "MOM information and privately granted access.",
     "Description": "MOM is a free public front end. Additional functionality is available through privately granted access. Visit the community for access availability and support.",
     "ApplicableVersion": "any",

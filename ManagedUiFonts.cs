@@ -13,6 +13,7 @@ namespace mom.PublicShell;
 internal sealed class ManagedUiFonts : IDisposable
 {
     private readonly IFontAtlas atlas;
+    private readonly MaterialTextRenderer shapedText;
     private static readonly MaterialWindowFold statusMotion = new();
     private static readonly MaterialWindowDecorations statusDecorations = new();
     private IFontHandle[] handles = [];
@@ -21,7 +22,8 @@ internal sealed class ManagedUiFonts : IDisposable
     private int generation;
     private int checkedGeneration = -1;
     private Exception? glyphError;
-    internal ManagedUiFonts(IUiBuilder builder, string label) => atlas = builder.CreateFontAtlas(FontAtlasAutoRebuildMode.Async, true, label);
+    internal ManagedUiFonts(IUiBuilder builder, string label, MaterialTextRenderer shapedText)
+    { this.shapedText = shapedText; atlas = builder.CreateFontAtlas(FontAtlasAutoRebuildMode.Async, true, label); }
     internal Exception? Error => glyphError ?? handles.FirstOrDefault(h => h.LoadException != null)?.LoadException;
     internal void Prepare(string selected, IEnumerable<string> strings)
     {
@@ -29,8 +31,8 @@ internal sealed class ManagedUiFonts : IDisposable
         using var suppress = atlas.SuppressAutoRebuild();
         foreach (var handle in handles) { handle.ImFontChanged -= Changed; handle.Dispose(); }
         language = selected;
-        required = strings.Concat(["English", "Deutsch", "Français", "Español", "Italiano", "Русский", "日本語", "한국어", "简体中文", "繁體中文", "Português (Brasil)", "Tiếng Việt", "Bahasa Indonesia", "Polski", "Türkçe", "♡", "—", "…"]).Distinct().ToArray();
-        var ranges = required.SelectMany(text => text).Where(c => !char.IsControl(c))
+        required = strings.Concat(["English", "Deutsch", "Français", "Español", "Italiano", "Русский", "日本語", "한국어", "简体中文", "繁體中文", "Português (Brasil)", "Tiếng Việt", "Bahasa Indonesia", "Polski", "Türkçe", "हिन्दी", "♡", "—", "…"]).Distinct().ToArray();
+        var ranges = required.Select(MaterialText.NativeGlyphText).SelectMany(text => text).Where(c => !char.IsControl(c))
             .Concat(Enumerable.Range(0x20, 0x250 - 0x20).Select(i => (char)i))
             .Concat(Enumerable.Range(0x400, 0x130).Select(i => (char)i)).ToGlyphRange();
         glyphError = null; checkedGeneration = -1;
@@ -61,8 +63,9 @@ internal sealed class ManagedUiFonts : IDisposable
         {
             for (var index = 0; index < handles.Length; index++)
             {
+                shapedText.CheckGlyphs(required, UiStyle.FontSizes[index] * 4 / 3 * ImGui.GetIO().FontGlobalScale);
                 using var font = handles[index].Lock();
-                foreach (var character in required.SelectMany(text => text).Where(c => !char.IsControl(c)).Distinct())
+                foreach (var character in required.Select(MaterialText.NativeGlyphText).SelectMany(text => text).Where(c => !char.IsControl(c)).Distinct())
                     if (ImGui.FindGlyphNoFallback(font.ImFont, character).Handle == null)
                         throw new InvalidOperationException("Required MOM UI glyph missing: U+" + ((int)character).ToString("X4") + " in " + (UiFontRole)index);
             }
@@ -83,7 +86,7 @@ internal sealed class ManagedUiFonts : IDisposable
         if (ImGui.Begin("MOM##FontStatus", ImGuiWindowFlags.AlwaysAutoResize))
         {
             statusDecorations.Paint();
-            ImGui.TextWrapped(message);
+            MaterialText.TextWrapped(message);
         }
         ImGui.End();
         statusDecorations.Paint();

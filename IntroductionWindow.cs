@@ -51,19 +51,19 @@ internal sealed class IntroductionWindow : Window
         using (ui.Font(UiFontRole.Title))
         {
             using var titleScale = new UiStyle.TextScale(42f * 11 / (24 * 18));
-            ImGui.TextColored(MaterialTheme.Current.Colors.Primary, "M");
-            ImGui.SameLine(0, ImGui.CalcTextSize(" ").X + (ui.Compact ? 6 : 10) * scale);
-            ImGui.TextColored(MaterialTheme.Current.Colors.Primary, "O");
-            ImGui.SameLine(0, ImGui.CalcTextSize(" ").X + (ui.Compact ? 6 : 10) * scale);
-            ImGui.TextColored(MaterialTheme.Current.Colors.Primary, "M");
+            MaterialText.TextColored(MaterialTheme.Current.Colors.Primary, "M");
+            ImGui.SameLine(0, MaterialText.Measure(" ").X + (ui.Compact ? 6 : 10) * scale);
+            MaterialText.TextColored(MaterialTheme.Current.Colors.Primary, "O");
+            ImGui.SameLine(0, MaterialText.Measure(" ").X + (ui.Compact ? 6 : 10) * scale);
+            MaterialText.TextColored(MaterialTheme.Current.Colors.Primary, "M");
         }
         ImGui.EndGroup();
         if (ImGui.GetContentRegionAvail().X > 550 * scale) ImGui.SameLine();
         ImGui.BeginGroup();
         using (ui.Font(UiFontRole.Caption))
         {
-            ImGui.TextDisabled("v" + BuildInfo.Version);
-            ImGui.TextDisabled(ui.T("By DhogGPT"));
+            MaterialText.TextDisabled("v" + BuildInfo.Version);
+            MaterialText.TextDisabled(ui.T("By DhogGPT"));
         }
         ImGui.EndGroup();
         if (ImGui.GetContentRegionAvail().X > 480 * scale)
@@ -126,8 +126,9 @@ internal sealed class IntroductionWindow : Window
         var fontSize = ImGui.GetFontSize();
         var logoSize = fontSize * 2;
         var logoWidth = fontSize * 2.4f;
-        var textSize = ImGui.CalcTextSize(visible);
+        var textSize = MaterialText.Measure(visible);
         size.X = MaterialLayout.FitNextItemWidth(size.X, textSize.X + ImGui.GetStyle().FramePadding.X * 2 + logoWidth);
+        if (MaterialText.RequiresShaping(visible)) size.Y = Math.Max(size.Y,textSize.Y + 2 * ImGui.GetStyle().FramePadding.Y);
         if (discord)
         {
             ImGui.PushStyleColor(ImGuiCol.Button, colors.PrimaryContainer);
@@ -155,7 +156,7 @@ internal sealed class IntroductionWindow : Window
         {
             var origin = new Vector2(x, centerY - logoSize * .5f);
             MaterialIcons.Draw(discord ? MaterialIcon.Discord : MaterialIcon.KoFi, drawList, origin, logoSize, Vector4.One, alpha);
-            drawList.AddText(ImGui.GetFont(), fontSize, new(x + logoWidth, centerY - textSize.Y * .5f), ImGui.ColorConvertFloat4ToU32(ink), visible);
+            MaterialText.AddText(drawList, ImGui.GetFont(), fontSize, new(x + logoWidth, centerY - textSize.Y * .5f), ImGui.ColorConvertFloat4ToU32(ink), visible);
         }
         finally { drawList.PopClipRect(); }
         return pressed;

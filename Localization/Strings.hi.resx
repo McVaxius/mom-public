@@ -1,0 +1,153 @@
+<?xml version='1.0' encoding='utf-8'?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms</value>
+  </resheader>
+  <data name="Language" xml:space="preserve">
+    <value>भाषा</value>
+  </data>
+  <data name="Color" xml:space="preserve">
+    <value>रंग</value>
+  </data>
+  <data name="Teal" xml:space="preserve">
+    <value>टील</value>
+  </data>
+  <data name="Blue" xml:space="preserve">
+    <value>नीला</value>
+  </data>
+  <data name="Pink" xml:space="preserve">
+    <value>गुलाबी</value>
+  </data>
+  <data name="Custom RGB" xml:space="preserve">
+    <value>कस्टम RGB</value>
+  </data>
+  <data name="Compact mode" xml:space="preserve">
+    <value>संक्षिप्त मोड</value>
+  </data>
+  <data name="By DhogGPT" xml:space="preserve">
+    <value>dhoggpt द्वारा</value>
+  </data>
+  <data name="Public access host" xml:space="preserve">
+    <value>सार्वजनिक एक्सेस होस्ट</value>
+  </data>
+  <data name="Public introduction" xml:space="preserve">
+    <value>सार्वजनिक परिचय</value>
+  </data>
+  <data name="Welcome to MOM" xml:space="preserve">
+    <value>MOM में आपका स्वागत है</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>MOM, Final Fantasy XIV के लिए एक सामुदायिक परियोजना है, जो सार्वजनिक एक्सेस होस्ट के माध्यम से साझा कंटेंट उपलब्ध कराती है।</value>
+  </data>
+  <data name="AccessBoundary" xml:space="preserve">
+    <value>सार्वजनिक प्लगइन मुफ़्त है। अतिरिक्त सुविधाएँ निजी रूप से दी गई पहुँच के माध्यम से मिलती हैं। उपलब्धता और सहायता के लिए समुदाय से संपर्क करें।</value>
+  </data>
+  <data name="CommunityCredit" xml:space="preserve">
+    <value>dhoggpt द्वारा एक सामूहिक सामुदायिक प्रयास।</value>
+  </data>
+  <data name="Help and discussion" xml:space="preserve">
+    <value>सहायता और चर्चा</value>
+  </data>
+  <data name="CommunityHelp" xml:space="preserve">
+    <value>प्लगइन सहायता, चर्चा, प्रश्न, अनुभव और घोषणाओं के लिए Discord पर The Dumpster Fire चैनल देखें।</value>
+  </data>
+  <data name="Join Discord" xml:space="preserve">
+    <value>Discord से जुड़ें</value>
+  </data>
+  <data name="Support on Ko-fi" xml:space="preserve">
+    <value>Ko-fi पर सहयोग दें</value>
+  </data>
+  <data name="SupportBoundary" xml:space="preserve">
+    <value>सहयोग परियोजना की मदद करता है और अपने आप पहुँच नहीं देता।</value>
+  </data>
+  <data name="Already have an access download?" xml:space="preserve">
+    <value>पहले से एक्सेस डाउनलोड है?</value>
+  </data>
+  <data name="InstallAccess" xml:space="preserve">
+    <value>इस सार्वजनिक प्लगइन को इंस्टॉल और चालू रखें। /apm में mom को प्लगइन सूची में शामिल करें और प्रकाशक पर भरोसा करें। सीधा एक्सेस ZIP लिंक कॉपी करें, फिर वैश्विक Check clipboard for updates बटन क्लिक करें। APM एक्सेस अपडेट इंस्टॉल करके MOM फिर लोड करता है।</value>
+  </data>
+  <data name="Refresh access" xml:space="preserve">
+    <value>एक्सेस ताज़ा करें</value>
+  </data>
+  <data name="RefreshExplanation" xml:space="preserve">
+    <value>यह आपके मौजूदा एक्सेस मॉड्यूल को जाँचकर लोड करता है।</value>
+  </data>
+  <data name="Access needs attention" xml:space="preserve">
+    <value>एक्सेस पर ध्यान दें</value>
+  </data>
+  <data name="AccessFailure" xml:space="preserve">
+    <value>एक्सेस सक्रिय नहीं हो सका। Dalamud लॉग देखें या संगत अपडेट के लिए प्रकाशक से संपर्क करें।</value>
+  </data>
+  <data name="Access status" xml:space="preserve">
+    <value>एक्सेस स्थिति</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>सक्रिय</value>
+  </data>
+  <data name="No access module installed" xml:space="preserve">
+    <value>कोई एक्सेस मॉड्यूल इंस्टॉल नहीं है</value>
+  </data>
+  <data name="Get the full plugin on Discord" xml:space="preserve">
+    <value>Discord पर पूरा प्लगइन पाएँ</value>
+  </data>
+  <data name="Install the full plugin with APM" xml:space="preserve">
+    <value>APM से पूरा प्लगइन इंस्टॉल करें</value>
+  </data>
+  <data name="ShellWelcome" xml:space="preserve">
+    <value>MOM में आपका स्वागत है। यह सार्वजनिक प्लगइन परिचय और इंस्टॉलेशन मार्गदर्शन देता है। पूरा प्लगइन Discord से पाएँ और Aethertek Plugin Manager (APM) से इंस्टॉल करें।</value>
+  </data>
+  <data name="ShellStep1" xml:space="preserve">
+    <value>1. Discord से पूरे प्लगइन का सीधा ZIP URL कॉपी करें (mom.zip या mom-v&lt;version&gt;.zip)।</value>
+  </data>
+  <data name="ShellStep2" xml:space="preserve">
+    <value>2. /apm खोलें और I trust the publisher चुनें।</value>
+  </data>
+  <data name="ShellStep3" xml:space="preserve">
+    <value>3. APM की डेवलपमेंट-प्लगइन सूची में mom चुनें।</value>
+  </data>
+  <data name="ShellStep4" xml:space="preserve">
+    <value>4. Update selected plugin from clipboard चुनें।</value>
+  </data>
+  <data name="ShellFinish" xml:space="preserve">
+    <value>अपडेट पूरा होने तक APM चालू रखें। पूरा प्लगइन इस परिचय की जगह लेता है और /mom से खुलता है।</value>
+  </data>
+  <data name="Preparing MOM interface fonts..." xml:space="preserve">
+    <value>MOM इंटरफ़ेस फ़ॉन्ट तैयार हो रहे हैं...</value>
+  </data>
+  <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve">
+    <value>MOM इंटरफ़ेस फ़ॉन्ट अनुपलब्ध हैं। Dalamud लॉग देखें।</value>
+  </data>
+  <data name="Window appearance" xml:space="preserve">
+    <value>विंडो की दिखावट</value>
+  </data>
+  <data name="Compact visible on main window" xml:space="preserve">
+    <value>मुख्य विंडो पर संक्षिप्त मोड दिखाएँ</value>
+  </data>
+  <data name="Language visible on main window" xml:space="preserve">
+    <value>मुख्य विंडो पर भाषा चयन दिखाएँ</value>
+  </data>
+  <data name="Transparency" xml:space="preserve">
+    <value>पारदर्शिता</value>
+  </data>
+  <data name="Opacity (%)" xml:space="preserve">
+    <value>अपारदर्शिता (%)</value>
+  </data>
+  <data name="Auto-fade when unfocused" xml:space="preserve">
+    <value>फ़ोकस हटने पर अपने आप हल्का करें</value>
+  </data>
+  <data name="Unfocused opacity (%)" xml:space="preserve">
+    <value>फ़ोकस हटने पर अपारदर्शिता (%)</value>
+  </data>
+  <data name="Unfocused delay (seconds)" xml:space="preserve">
+    <value>फ़ोकस हटने पर विलंब (सेकंड)</value>
+  </data>
+</root>

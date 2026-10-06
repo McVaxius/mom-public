@@ -23,7 +23,7 @@ public sealed class Plugin : IDalamudPlugin
 
     public Plugin()
     {
-        presentation = new PublicUi(PluginInterface);
+        presentation = new PublicUi(PluginInterface, Textures);
         try
         {
             introduction = new IntroductionWindow(PluginInterface, Textures, loader, RefreshAccess, presentation);

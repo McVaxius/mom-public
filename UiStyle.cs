@@ -122,18 +122,86 @@ internal static class UiStyle
         }
         // Keep the raw label's native ID, including buttons predating keyed localization.
         var iconWidth = icon == MaterialIcon.None ? 0 : ImGui.GetFontSize() * 1.7f;
-        size.X=MaterialLayout.FitNextItemWidth(size.X,ImGui.CalcTextSize(visible).X+ImGui.GetStyle().FramePadding.X*2+iconWidth);
+        size.X=MaterialLayout.FitNextItemWidth(size.X,MaterialText.Measure(visible).X+ImGui.GetStyle().FramePadding.X*2+iconWidth);
+        if (MaterialText.RequiresShaping(visible))
+            size.Y = Math.Max(size.Y, MaterialText.Measure(visible).Y + 2 * ImGui.GetStyle().FramePadding.Y);
         ImGui.PushStyleColor(ImGuiCol.Text, Vector4.Zero);
         var pressed = ImGui.Button(native, size);
         ImGui.PopStyleColor();
         if (primary) ImGui.PopStyleColor(3);
         var min = ImGui.GetItemRectMin(); var max = ImGui.GetItemRectMax();
-        var textSize = ImGui.CalcTextSize(visible);
+        var textSize = MaterialText.Measure(visible);
         var position = min + new Vector2((max.X - min.X - textSize.X - iconWidth) * .5f, (max.Y - min.Y - textSize.Y) * .5f);
         var ink = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
         if (ImGui.GetStyle().Alpha < 1) ink.W *= ImGui.GetStyle().Alpha;
         if (icon != MaterialIcon.None) MaterialIcons.Draw(icon, position, ImGui.GetFontSize() * 1.3f, ink);
-        ImGui.GetWindowDrawList().AddText(ImGui.GetFont(), ImGui.GetFontSize(), position + new Vector2(iconWidth, 0), ImGui.ColorConvertFloat4ToU32(ink), visible);
+        MaterialText.AddText(ImGui.GetWindowDrawList(), ImGui.GetFont(), ImGui.GetFontSize(), position + new Vector2(iconWidth, 0), ImGui.ColorConvertFloat4ToU32(ink), visible);
         return pressed;
+    }
+
+    internal static bool NativeCheckbox(string native, ref bool value)
+    {
+        var visible = native.Split("##", 2)[0];
+        if (!MaterialText.RequiresShaping(visible)) return ImGui.Checkbox(native, ref value);
+        using var height = MaterialText.PushLineHeight(visible);
+        var text = MaterialText.Measure(visible);
+        var suffix = native.IndexOf("###", StringComparison.Ordinal);
+        // Include the raster's final antialias pixel in the native hit area; ### retains its ID.
+        var reservedWidth = MathF.Ceiling(text.X) + 1;
+        var spaces = new string(' ', (int)MathF.Ceiling(reservedWidth / Math.Max(1, ImGui.CalcTextSize(" ").X)));
+        while (ImGui.CalcTextSize(spaces).X < reservedWidth) spaces += " ";
+        var proxy = suffix < 0 ? native : spaces + native[suffix..];
+        var ink = ImGui.GetColorU32(ImGuiCol.Text);
+        ImGui.PushStyleColor(ImGuiCol.Text, Vector4.Zero);
+        bool changed;
+        try { changed = ImGui.Checkbox(proxy, ref value); }
+        finally { ImGui.PopStyleColor(); }
+        if (ImGui.IsItemVisible())
+        {
+            var min = ImGui.GetItemRectMin(); var max = ImGui.GetItemRectMax();
+            var draw = ImGui.GetWindowDrawList();
+            draw.PushClipRect(min, max, true);
+            try { MaterialText.AddText(draw, min + new Vector2(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X, (max.Y - min.Y - text.Y) * .5f), ink, visible); }
+            finally { draw.PopClipRect(); }
+        }
+        return changed;
+    }
+
+    internal static bool NativeInputInt(string native, ref int value)
+    {
+        var visible = native.Split("##", 2)[0];
+        var suffix = native.IndexOf("###", StringComparison.Ordinal);
+        if (!MaterialText.RequiresShaping(visible) || suffix < 0) return ImGui.InputInt(native, ref value);
+        var width = ImGui.CalcItemWidth();
+        MaterialText.Text(visible);
+        ImGui.SetNextItemWidth(width);
+        return ImGui.InputInt(native[suffix..], ref value);
+    }
+
+    internal static bool NativeCombo(string native, ref int selected, string[] options, int count)
+    {
+        if (!options.Take(count).Any(MaterialText.RequiresShaping)) return ImGui.Combo(native, ref selected, options, count);
+        var changed = false;
+        var id = ImGui.GetID(native);
+        if (MaterialText.BeginCombo(native, selected >= 0 && selected < count ? options[selected] : ""))
+        {
+            try
+            {
+                for (var index = 0; index < count; index++)
+                {
+                    ImGui.PushID(index);
+                    try
+                    {
+                        var active = index == selected;
+                        if (MaterialText.Selectable(options[index], active)) { selected = index; changed = true; }
+                        if (active) ImGui.SetItemDefaultFocus();
+                    }
+                    finally { ImGui.PopID(); }
+                }
+            }
+            finally { ImGui.EndCombo(); }
+        }
+        if (changed) ImGuiP.MarkItemEdited(id);
+        return changed;
     }
 }
