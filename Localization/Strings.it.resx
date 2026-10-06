@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language" xml:space="preserve"><value>Lingua</value></data>
+  <data name="Color" xml:space="preserve"><value>Colore</value></data>
+  <data name="Teal" xml:space="preserve"><value>Turchese</value></data>
+  <data name="Blue" xml:space="preserve"><value>Blu</value></data>
+  <data name="Pink" xml:space="preserve"><value>Rosa</value></data>
+  <data name="Custom RGB" xml:space="preserve"><value>RGB personalizzato</value></data>
+  <data name="Compact mode" xml:space="preserve"><value>Modalità compatta</value></data>
+  <data name="By DhogGPT" xml:space="preserve"><value>Di DhogGPT</value></data>
+  <data name="Public access host" xml:space="preserve"><value>Host di accesso pubblico</value></data>
+  <data name="Public introduction" xml:space="preserve"><value>Introduzione pubblica</value></data>
+  <data name="Welcome to MOM" xml:space="preserve"><value>Benvenuto in MOM</value></data>
+  <data name="Welcome" xml:space="preserve"><value>MOM è un progetto della comunità per Final Fantasy XIV che offre accesso a contenuti condivisi tramite un host pubblico.</value></data>
+  <data name="AccessBoundary" xml:space="preserve"><value>Il plugin pubblico è gratuito. Le funzionalità aggiuntive richiedono accesso concesso privatamente. Contatta la comunità per disponibilità e assistenza.</value></data>
+  <data name="CommunityCredit" xml:space="preserve"><value>Un progetto collaborativo della comunità di DhogGPT.</value></data>
+  <data name="Help and discussion" xml:space="preserve"><value>Aiuto e discussione</value></data>
+  <data name="CommunityHelp" xml:space="preserve"><value>Visita il canale The Dumpster Fire su Discord per assistenza, discussioni, domande, esperienze e annunci.</value></data>
+  <data name="Join Discord" xml:space="preserve"><value>Unisciti a Discord</value></data>
+  <data name="Support on Ko-fi" xml:space="preserve"><value>Sostieni su Ko-fi</value></data>
+  <data name="SupportBoundary" xml:space="preserve"><value>Il sostegno aiuta il progetto e non concede automaticamente l'accesso.</value></data>
+  <data name="Already have an access download?" xml:space="preserve"><value>Hai già un download di accesso?</value></data>
+  <data name="InstallAccess" xml:space="preserve"><value>Mantieni questo plugin pubblico installato e attivo. In /apm, includi mom nell'elenco e conferma la fiducia nell'editore. Copia il link ZIP diretto di accesso e premi il pulsante globale di verifica degli aggiornamenti dagli appunti. APM installa l'accesso e ricarica MOM.</value></data>
+  <data name="Refresh access" xml:space="preserve"><value>Aggiorna accesso</value></data>
+  <data name="RefreshExplanation" xml:space="preserve"><value>Verifica e carica il modulo di accesso già presente.</value></data>
+  <data name="Access needs attention" xml:space="preserve"><value>L'accesso richiede attenzione</value></data>
+  <data name="AccessFailure" xml:space="preserve"><value>Impossibile attivare l'accesso. Controlla il registro Dalamud o contatta l'editore per un aggiornamento compatibile.</value></data>
+  <data name="Access status" xml:space="preserve"><value>Stato accesso</value></data>
+  <data name="Active" xml:space="preserve"><value>Attivo</value></data>
+  <data name="No access module installed" xml:space="preserve"><value>Nessun modulo di accesso installato</value></data>
+  <data name="Get the full plugin on Discord" xml:space="preserve"><value>Ottieni il plugin completo su Discord</value></data>
+  <data name="Install the full plugin with APM" xml:space="preserve"><value>Installa il plugin completo con APM</value></data>
+  <data name="ShellWelcome" xml:space="preserve"><value>Benvenuto in MOM. Questo plugin pubblico offre un'introduzione e istruzioni. Ottieni il plugin completo su Discord e installalo con Aethertek Plugin Manager (APM).</value></data>
+  <data name="ShellStep1" xml:space="preserve"><value>1. Copia il link ZIP diretto del plugin completo da Discord (mom.zip o mom-v&lt;version&gt;.zip).</value></data>
+  <data name="ShellStep2" xml:space="preserve"><value>2. Apri /apm e conferma la fiducia nell'editore.</value></data>
+  <data name="ShellStep3" xml:space="preserve"><value>3. Seleziona mom nell'elenco dei plugin di sviluppo di APM.</value></data>
+  <data name="ShellStep4" xml:space="preserve"><value>4. Scegli l'aggiornamento del plugin selezionato dagli appunti.</value></data>
+  <data name="ShellFinish" xml:space="preserve"><value>Mantieni APM attivo fino al termine. Il plugin completo sostituisce questa introduzione e si apre con /mom.</value></data>
+  <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>Preparazione dei caratteri dell'interfaccia MOM...</value></data>
+  <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>I caratteri dell'interfaccia MOM non sono disponibili. Consulta il registro di Dalamud.</value></data>
+</root>

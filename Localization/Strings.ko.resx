@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language" xml:space="preserve"><value>언어</value></data>
+  <data name="Color" xml:space="preserve"><value>색상</value></data>
+  <data name="Teal" xml:space="preserve"><value>청록</value></data>
+  <data name="Blue" xml:space="preserve"><value>파랑</value></data>
+  <data name="Pink" xml:space="preserve"><value>분홍</value></data>
+  <data name="Custom RGB" xml:space="preserve"><value>사용자 RGB</value></data>
+  <data name="Compact mode" xml:space="preserve"><value>간결 모드</value></data>
+  <data name="By DhogGPT" xml:space="preserve"><value>제작: DhogGPT</value></data>
+  <data name="Public access host" xml:space="preserve"><value>공개 접근 호스트</value></data>
+  <data name="Public introduction" xml:space="preserve"><value>공개 소개</value></data>
+  <data name="Welcome to MOM" xml:space="preserve"><value>MOM에 오신 것을 환영합니다</value></data>
+  <data name="Welcome" xml:space="preserve"><value>MOM은 공개 접근 호스트를 통해 공유 콘텐츠에 접근할 수 있는 Final Fantasy XIV 커뮤니티 프로젝트입니다.</value></data>
+  <data name="AccessBoundary" xml:space="preserve"><value>공개 플러그인은 무료입니다. 추가 기능은 개별적으로 허용된 비공개 접근으로 배포됩니다. 이용 가능 여부와 지원은 커뮤니티에 문의하세요.</value></data>
+  <data name="CommunityCredit" xml:space="preserve"><value>DhogGPT의 커뮤니티 협력 프로젝트입니다.</value></data>
+  <data name="Help and discussion" xml:space="preserve"><value>도움말과 토론</value></data>
+  <data name="CommunityHelp" xml:space="preserve"><value>플러그인 도움말, 토론, 질문, 경험 공유 및 공지는 Discord의 The Dumpster Fire 채널을 방문하세요.</value></data>
+  <data name="Join Discord" xml:space="preserve"><value>Discord 참여</value></data>
+  <data name="Support on Ko-fi" xml:space="preserve"><value>Ko-fi에서 후원</value></data>
+  <data name="SupportBoundary" xml:space="preserve"><value>후원은 프로젝트에 도움이 되며 자동으로 접근 권한을 부여하지 않습니다.</value></data>
+  <data name="Already have an access download?" xml:space="preserve"><value>접근 파일을 이미 받으셨나요?</value></data>
+  <data name="InstallAccess" xml:space="preserve"><value>이 공개 플러그인을 설치하고 활성화된 상태로 유지하세요. /apm에서 mom을 목록에 포함하고 배포자를 신뢰하세요. 접근 ZIP 직접 링크를 복사한 뒤 전체 클립보드 업데이트 확인 버튼을 누르세요. APM이 접근을 설치하고 MOM을 다시 불러옵니다.</value></data>
+  <data name="Refresh access" xml:space="preserve"><value>접근 새로고침</value></data>
+  <data name="RefreshExplanation" xml:space="preserve"><value>기존 접근 모듈을 확인하고 불러옵니다.</value></data>
+  <data name="Access needs attention" xml:space="preserve"><value>접근 확인이 필요합니다</value></data>
+  <data name="AccessFailure" xml:space="preserve"><value>접근을 활성화하지 못했습니다. Dalamud 로그를 확인하거나 배포자에게 호환 업데이트를 요청하세요.</value></data>
+  <data name="Access status" xml:space="preserve"><value>접근 상태</value></data>
+  <data name="Active" xml:space="preserve"><value>활성</value></data>
+  <data name="No access module installed" xml:space="preserve"><value>접근 모듈이 설치되지 않음</value></data>
+  <data name="Get the full plugin on Discord" xml:space="preserve"><value>Discord에서 전체 플러그인 받기</value></data>
+  <data name="Install the full plugin with APM" xml:space="preserve"><value>APM으로 전체 플러그인 설치</value></data>
+  <data name="ShellWelcome" xml:space="preserve"><value>MOM에 오신 것을 환영합니다. 공개 플러그인은 소개와 설치 안내를 제공합니다. Discord에서 전체 플러그인을 받아 Aethertek Plugin Manager(APM)로 설치하세요.</value></data>
+  <data name="ShellStep1" xml:space="preserve"><value>1. Discord에서 전체 플러그인 ZIP 직접 URL(mom.zip 또는 mom-v&lt;version&gt;.zip)을 복사하세요.</value></data>
+  <data name="ShellStep2" xml:space="preserve"><value>2. /apm을 열고 배포자 신뢰를 선택하세요.</value></data>
+  <data name="ShellStep3" xml:space="preserve"><value>3. APM 개발 플러그인 목록에서 mom을 선택하세요.</value></data>
+  <data name="ShellStep4" xml:space="preserve"><value>4. 클립보드에서 선택한 플러그인 업데이트를 선택하세요.</value></data>
+  <data name="ShellFinish" xml:space="preserve"><value>업데이트가 끝날 때까지 APM을 활성화하세요. 전체 플러그인이 이 소개를 대체하며 /mom으로 열립니다.</value></data>
+  <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>MOM 인터페이스 글꼴을 준비하는 중...</value></data>
+  <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>MOM 인터페이스 글꼴을 사용할 수 없습니다. Dalamud 로그를 확인하세요.</value></data>
+</root>

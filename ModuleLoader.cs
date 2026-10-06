@@ -131,6 +131,14 @@ internal sealed class ModuleLoader : IDisposable
             var contract = typeof(IModule).Assembly;
             if (name.Name == contract.GetName().Name)
                 return name.FullName == contract.GetName().FullName ? contract : throw new FileLoadException("Access contract mismatch.");
+            // Share only the exact UI library already referenced by the public host.
+            // No arbitrary dependency search beside the host or in the access folder.
+            var uiLibrary = typeof(AethertekUI.MaterialTheme).Assembly;
+            if (name.Name == uiLibrary.GetName().Name)
+                return name.FullName == uiLibrary.GetName().FullName ? uiLibrary : throw new FileLoadException("Access UI library identity mismatch.");
+            var uiAdapter = typeof(AethertekUI.Dalamud.MaterialWindowMotion).Assembly;
+            if (name.Name == uiAdapter.GetName().Name)
+                return name.FullName == uiAdapter.GetName().FullName ? uiAdapter : throw new FileLoadException("Access UI adapter identity mismatch.");
             var resourceName = name.Name switch
             {
                 "ECommons" => "mom.Dependencies.ECommons.dll",

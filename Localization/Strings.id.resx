@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language" xml:space="preserve"><value>Bahasa</value></data>
+  <data name="Color" xml:space="preserve"><value>Warna</value></data>
+  <data name="Teal" xml:space="preserve"><value>Toska</value></data>
+  <data name="Blue" xml:space="preserve"><value>Biru</value></data>
+  <data name="Pink" xml:space="preserve"><value>Merah muda</value></data>
+  <data name="Custom RGB" xml:space="preserve"><value>RGB kustom</value></data>
+  <data name="Compact mode" xml:space="preserve"><value>Mode ringkas</value></data>
+  <data name="By DhogGPT" xml:space="preserve"><value>Oleh DhogGPT</value></data>
+  <data name="Public access host" xml:space="preserve"><value>Plugin akses publik</value></data>
+  <data name="Public introduction" xml:space="preserve"><value>Pengenalan publik</value></data>
+  <data name="Welcome to MOM" xml:space="preserve"><value>Selamat datang di MOM</value></data>
+  <data name="Welcome" xml:space="preserve"><value>MOM adalah proyek komunitas untuk Final Fantasy XIV yang menyediakan akses ke konten bersama melalui plugin akses publik.</value></data>
+  <data name="AccessBoundary" xml:space="preserve"><value>Plugin publik ini gratis. Fungsi tambahan didistribusikan melalui akses yang diberikan secara pribadi. Hubungi komunitas untuk informasi ketersediaan dan dukungan.</value></data>
+  <data name="CommunityCredit" xml:space="preserve"><value>Kolaborasi komunitas oleh DhogGPT.</value></data>
+  <data name="Help and discussion" xml:space="preserve"><value>Bantuan dan diskusi</value></data>
+  <data name="CommunityHelp" xml:space="preserve"><value>Kunjungi kanal The Dumpster Fire di Discord untuk bantuan dan diskusi plugin, pertanyaan, pengalaman, serta pengumuman.</value></data>
+  <data name="Join Discord" xml:space="preserve"><value>Gabung Discord</value></data>
+  <data name="Support on Ko-fi" xml:space="preserve"><value>Dukung di Ko-fi</value></data>
+  <data name="SupportBoundary" xml:space="preserve"><value>Dukungan membantu proyek dan tidak otomatis memberikan akses.</value></data>
+  <data name="Already have an access download?" xml:space="preserve"><value>Sudah punya unduhan akses?</value></data>
+  <data name="InstallAccess" xml:space="preserve"><value>Biarkan plugin publik ini terpasang dan aktif. Di /apm, masukkan mom ke daftar plugin dan percayai penerbitnya. Salin tautan ZIP akses langsung, lalu klik tombol global Check clipboard for updates. APM memasang pembaruan akses dan memuat ulang MOM.</value></data>
+  <data name="Refresh access" xml:space="preserve"><value>Segarkan akses</value></data>
+  <data name="RefreshExplanation" xml:space="preserve"><value>Ini memeriksa dan memuat modul akses yang sudah Anda miliki.</value></data>
+  <data name="Access needs attention" xml:space="preserve"><value>Akses perlu diperiksa</value></data>
+  <data name="AccessFailure" xml:space="preserve"><value>Akses tidak dapat diaktifkan. Periksa log Dalamud atau hubungi penerbit untuk pembaruan yang kompatibel.</value></data>
+  <data name="Access status" xml:space="preserve"><value>Status akses</value></data>
+  <data name="Active" xml:space="preserve"><value>Aktif</value></data>
+  <data name="No access module installed" xml:space="preserve"><value>Modul akses belum terpasang</value></data>
+  <data name="Get the full plugin on Discord" xml:space="preserve"><value>Dapatkan plugin lengkap di Discord</value></data>
+  <data name="Install the full plugin with APM" xml:space="preserve"><value>Pasang plugin lengkap dengan APM</value></data>
+  <data name="ShellWelcome" xml:space="preserve"><value>Selamat datang di MOM. Plugin publik ini menyediakan pengenalan dan panduan pemasangan. Dapatkan plugin lengkap melalui Discord dan pasang dengan Aethertek Plugin Manager (APM).</value></data>
+  <data name="ShellStep1" xml:space="preserve"><value>1. Salin URL ZIP langsung plugin lengkap dari Discord (mom.zip atau mom-v&lt;version&gt;.zip).</value></data>
+  <data name="ShellStep2" xml:space="preserve"><value>2. Buka /apm dan centang I trust the publisher.</value></data>
+  <data name="ShellStep3" xml:space="preserve"><value>3. Pilih mom dalam daftar plugin pengembangan APM.</value></data>
+  <data name="ShellStep4" xml:space="preserve"><value>4. Pilih Update selected plugin from clipboard.</value></data>
+  <data name="ShellFinish" xml:space="preserve"><value>Biarkan APM aktif sampai pembaruan selesai. Plugin lengkap menggantikan pengenalan ini dan dibuka dengan /mom.</value></data>
+  <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>Menyiapkan font antarmuka MOM...</value></data>
+  <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>Font antarmuka MOM tidak tersedia. Lihat log Dalamud.</value></data>
+</root>

@@ -15,6 +15,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] public static ITextureProvider Textures { get; private set; } = null!;
     private readonly WindowSystem windows = new("mom.Information");
     private readonly ModuleLoader loader = new();
+    private readonly PublicUi presentation;
     private readonly IntroductionWindow introduction;
     private readonly List<Action> cleanup = [];
     private int disposed;
@@ -22,9 +23,10 @@ public sealed class Plugin : IDalamudPlugin
 
     public Plugin()
     {
-        introduction = new IntroductionWindow(PluginInterface, Textures, loader, RefreshAccess);
+        presentation = new PublicUi(PluginInterface);
         try
         {
+            introduction = new IntroductionWindow(PluginInterface, Textures, loader, RefreshAccess, presentation);
             cleanup.Add(windows.RemoveAllWindows);
             windows.AddWindow(introduction);
             if (!CommandManager.AddHandler("/mom", new CommandInfo(OnCommand) { HelpMessage = "Open MOM. Access modules provide additional commands." }))
@@ -64,13 +66,19 @@ public sealed class Plugin : IDalamudPlugin
     private void Open() { if (IsDisposed) return; if (loader.Module is { } module) module.OpenMainWindow(); else introduction.IsOpen = true; }
     private void OpenConfig() { if (IsDisposed) return; if (loader.Module is { } module) module.OnCommand("/mom", "config"); else introduction.IsOpen = true; }
     private void OnCommand(string command, string arguments) { if (IsDisposed) return; if (loader.Module is { } module) module.OnCommand(command, arguments); else introduction.IsOpen = true; }
-    private void Draw() { if (IsDisposed) return; windows.Draw(); loader.Module?.Draw(); }
+    private void Draw()
+    {
+        if (IsDisposed) return;
+        if (introduction.IsOpen) presentation.Draw(windows.Draw, error => Log.Error(error, "[mom] Public UI font coverage failed."));
+        loader.Module?.Draw();
+    }
     public void Dispose()
     {
         if (System.Threading.Interlocked.Exchange(ref disposed, 1) != 0) return;
         for (var index = cleanup.Count - 1; index >= 0; --index) Cleanup(cleanup[index]);
         cleanup.Clear();
         Cleanup(loader.Dispose);
+        Cleanup(presentation.Dispose);
     }
 
     private static void Cleanup(Action action)

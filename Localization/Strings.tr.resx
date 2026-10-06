@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language" xml:space="preserve"><value>Dil</value></data>
+  <data name="Color" xml:space="preserve"><value>Renk</value></data>
+  <data name="Teal" xml:space="preserve"><value>Turkuaz</value></data>
+  <data name="Blue" xml:space="preserve"><value>Mavi</value></data>
+  <data name="Pink" xml:space="preserve"><value>Pembe</value></data>
+  <data name="Custom RGB" xml:space="preserve"><value>Özel RGB</value></data>
+  <data name="Compact mode" xml:space="preserve"><value>Kompakt mod</value></data>
+  <data name="By DhogGPT" xml:space="preserve"><value>DhogGPT tarafından</value></data>
+  <data name="Public access host" xml:space="preserve"><value>Herkese açık erişim eklentisi</value></data>
+  <data name="Public introduction" xml:space="preserve"><value>Herkese açık tanıtım</value></data>
+  <data name="Welcome to MOM" xml:space="preserve"><value>MOM'a hoş geldiniz</value></data>
+  <data name="Welcome" xml:space="preserve"><value>MOM, Final Fantasy XIV için herkese açık bir erişim eklentisi üzerinden paylaşılan içeriğe erişim sağlayan bir topluluk projesidir.</value></data>
+  <data name="AccessBoundary" xml:space="preserve"><value>Herkese açık eklenti ücretsizdir. Ek işlevler özel olarak verilen erişim yoluyla dağıtılır. Kullanılabilirlik ve destek için toplulukla iletişime geçin.</value></data>
+  <data name="CommunityCredit" xml:space="preserve"><value>DhogGPT tarafından yürütülen ortak bir topluluk çalışması.</value></data>
+  <data name="Help and discussion" xml:space="preserve"><value>Yardım ve tartışma</value></data>
+  <data name="CommunityHelp" xml:space="preserve"><value>Eklenti yardımı, tartışmalar, sorular, deneyimler ve duyurular için Discord'daki The Dumpster Fire kanalını ziyaret edin.</value></data>
+  <data name="Join Discord" xml:space="preserve"><value>Discord'a katıl</value></data>
+  <data name="Support on Ko-fi" xml:space="preserve"><value>Ko-fi üzerinden destekle</value></data>
+  <data name="SupportBoundary" xml:space="preserve"><value>Destek projeye yardımcı olur ve otomatik olarak erişim sağlamaz.</value></data>
+  <data name="Already have an access download?" xml:space="preserve"><value>Erişim indirme bağlantınız var mı?</value></data>
+  <data name="InstallAccess" xml:space="preserve"><value>Bu herkese açık eklentiyi yüklü ve etkin tutun. /apm içinde mom'u eklenti listesine ekleyin ve yayıncıya güvenin. Doğrudan erişim ZIP bağlantısını kopyalayın, ardından genel Check clipboard for updates düğmesine tıklayın. APM erişim güncellemesini yükler ve MOM'u yeniden yükler.</value></data>
+  <data name="Refresh access" xml:space="preserve"><value>Erişimi yenile</value></data>
+  <data name="RefreshExplanation" xml:space="preserve"><value>Bu işlem mevcut erişim modülünüzü denetler ve yükler.</value></data>
+  <data name="Access needs attention" xml:space="preserve"><value>Erişimle ilgilenilmesi gerekiyor</value></data>
+  <data name="AccessFailure" xml:space="preserve"><value>Erişim etkinleştirilemedi. Dalamud günlüğünü kontrol edin veya uyumlu bir güncelleme için yayıncıyla iletişime geçin.</value></data>
+  <data name="Access status" xml:space="preserve"><value>Erişim durumu</value></data>
+  <data name="Active" xml:space="preserve"><value>Etkin</value></data>
+  <data name="No access module installed" xml:space="preserve"><value>Erişim modülü yüklü değil</value></data>
+  <data name="Get the full plugin on Discord" xml:space="preserve"><value>Tam eklentiyi Discord'dan edinin</value></data>
+  <data name="Install the full plugin with APM" xml:space="preserve"><value>Tam eklentiyi APM ile yükleyin</value></data>
+  <data name="ShellWelcome" xml:space="preserve"><value>MOM'a hoş geldiniz. Bu herkese açık eklenti tanıtım ve yükleme yönergeleri sunar. Tam eklentiyi Discord üzerinden edinin ve Aethertek Plugin Manager (APM) ile yükleyin.</value></data>
+  <data name="ShellStep1" xml:space="preserve"><value>1. Tam eklentinin doğrudan ZIP URL'sini Discord'dan kopyalayın (mom.zip veya mom-v&lt;version&gt;.zip).</value></data>
+  <data name="ShellStep2" xml:space="preserve"><value>2. /apm'yi açın ve I trust the publisher seçeneğini işaretleyin.</value></data>
+  <data name="ShellStep3" xml:space="preserve"><value>3. APM'nin geliştirme eklentisi listesinden mom'u seçin.</value></data>
+  <data name="ShellStep4" xml:space="preserve"><value>4. Update selected plugin from clipboard seçeneğini kullanın.</value></data>
+  <data name="ShellFinish" xml:space="preserve"><value>Güncelleme tamamlanana kadar APM'yi etkin tutun. Tam eklenti bu tanıtımın yerini alır ve /mom ile açılır.</value></data>
+  <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>MOM arayüz yazı tipleri hazırlanıyor...</value></data>
+  <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>MOM arayüz yazı tipleri kullanılamıyor. Dalamud günlüğüne bakın.</value></data>
+</root>

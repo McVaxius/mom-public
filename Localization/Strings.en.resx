@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language" xml:space="preserve"><value>Language</value></data>
+  <data name="Color" xml:space="preserve"><value>Color</value></data>
+  <data name="Teal" xml:space="preserve"><value>Teal</value></data>
+  <data name="Blue" xml:space="preserve"><value>Blue</value></data>
+  <data name="Pink" xml:space="preserve"><value>Pink</value></data>
+  <data name="Custom RGB" xml:space="preserve"><value>Custom RGB</value></data>
+  <data name="Compact mode" xml:space="preserve"><value>Compact mode</value></data>
+  <data name="By DhogGPT" xml:space="preserve"><value>By DhogGPT</value></data>
+  <data name="Public access host" xml:space="preserve"><value>Public access host</value></data>
+  <data name="Public introduction" xml:space="preserve"><value>Public introduction</value></data>
+  <data name="Welcome to MOM" xml:space="preserve"><value>Welcome to MOM</value></data>
+  <data name="Welcome" xml:space="preserve"><value>MOM is a community project for Final Fantasy XIV, providing access to shared content through a public access host.</value></data>
+  <data name="AccessBoundary" xml:space="preserve"><value>The public plugin is free. Additional functionality is distributed through privately granted access. Contact the community for availability and support.</value></data>
+  <data name="CommunityCredit" xml:space="preserve"><value>A collaborative community effort by DhogGPT.</value></data>
+  <data name="Help and discussion" xml:space="preserve"><value>Help and discussion</value></data>
+  <data name="CommunityHelp" xml:space="preserve"><value>Visit The Dumpster Fire channel on Discord for plugin help and discussion, questions, experiences, and announcements.</value></data>
+  <data name="Join Discord" xml:space="preserve"><value>Join Discord</value></data>
+  <data name="Support on Ko-fi" xml:space="preserve"><value>Support on Ko-fi</value></data>
+  <data name="SupportBoundary" xml:space="preserve"><value>Support helps the project and does not automatically grant access.</value></data>
+  <data name="Already have an access download?" xml:space="preserve"><value>Already have an access download?</value></data>
+  <data name="InstallAccess" xml:space="preserve"><value>Keep this public plugin installed and enabled. In /apm, include mom in the plugin list and trust the publisher. Copy the direct access ZIP link, then click the global Check clipboard for updates button. APM installs the access update and reloads MOM.</value></data>
+  <data name="Refresh access" xml:space="preserve"><value>Refresh access</value></data>
+  <data name="RefreshExplanation" xml:space="preserve"><value>This checks for and loads your existing access module.</value></data>
+  <data name="Access needs attention" xml:space="preserve"><value>Access needs attention</value></data>
+  <data name="AccessFailure" xml:space="preserve"><value>Access could not be activated. Check the Dalamud log or contact the publisher for a compatible update.</value></data>
+  <data name="Access status" xml:space="preserve"><value>Access status</value></data>
+  <data name="Active" xml:space="preserve"><value>Active</value></data>
+  <data name="No access module installed" xml:space="preserve"><value>No access module installed</value></data>
+  <data name="Get the full plugin on Discord" xml:space="preserve"><value>Get the full plugin on Discord</value></data>
+  <data name="Install the full plugin with APM" xml:space="preserve"><value>Install the full plugin with APM</value></data>
+  <data name="ShellWelcome" xml:space="preserve"><value>Welcome to MOM. This public plugin provides an introduction and installation guidance. Get the full plugin through Discord and install it with Aethertek Plugin Manager (APM).</value></data>
+  <data name="ShellStep1" xml:space="preserve"><value>1. Copy the direct full-plugin ZIP URL from Discord (mom.zip or mom-v&lt;version&gt;.zip).</value></data>
+  <data name="ShellStep2" xml:space="preserve"><value>2. Open /apm and check I trust the publisher.</value></data>
+  <data name="ShellStep3" xml:space="preserve"><value>3. Select mom in APM's development-plugin list.</value></data>
+  <data name="ShellStep4" xml:space="preserve"><value>4. Choose Update selected plugin from clipboard.</value></data>
+  <data name="ShellFinish" xml:space="preserve"><value>Keep APM enabled until the update finishes. The full plugin replaces this introduction and opens with /mom.</value></data>
+  <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>Preparing MOM interface fonts...</value></data>
+  <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>MOM interface fonts are unavailable. See the Dalamud log.</value></data>
+</root>

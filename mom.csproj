@@ -12,7 +12,7 @@
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
     <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <DebugType>none</DebugType>
     <IsPackable>false</IsPackable>
     <Use_DalamudPackager>false</Use_DalamudPackager>
@@ -22,6 +22,10 @@
   <ItemGroup>
     <Compile Include="Plugin.cs" />
     <Compile Include="IntroductionWindow.cs;IModule.cs;ModuleLoader.cs;ModulePackage.cs;BuildInfo.cs;TrustAnchor.cs;PrivateManifest.cs" />
+    <Compile Include="UiStyle.cs;ManagedUiFonts.cs;PublicPreferences.cs;PublicUi.cs" />
+    <ProjectReference Include="../aethertekUI/src/AethertekUI/AethertekUI.csproj" />
+    <ProjectReference Include="../aethertekUI/src/AethertekUI.Dalamud/AethertekUI.Dalamud.csproj" />
+    <EmbeddedResource Include="Localization/Strings.*.resx" LogicalName="mom.PublicShell.%(Filename).resources" WithCulture="false" />
     <None Include="mom.json" CopyToOutputDirectory="PreserveNewest" />
     <None Include="icon.png" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
@@ -31,7 +35,7 @@
     <RemoveDir Directories="$(_PublicPackageDir)" />
     <MakeDir Directories="$(_PublicPackageDir);$(TargetDir)$(AssemblyName)" />
     <ItemGroup>
-      <_PublicPackageFiles Include="$(TargetPath);$(ProjectDir)$(AssemblyName).json;$(ProjectDir)icon.png;$(ProjectDir)README.md;$(ProjectDir)LICENSE;$(ProjectDir)THIRD-PARTY-NOTICES.txt" />
+      <_PublicPackageFiles Include="$(TargetPath);$(TargetDir)AethertekUI.dll;$(TargetDir)AethertekUI.Dalamud.dll;$(ProjectDir)$(AssemblyName).json;$(ProjectDir)icon.png;$(ProjectDir)README.md;$(ProjectDir)LICENSE;$(ProjectDir)THIRD-PARTY-NOTICES.txt" />
     </ItemGroup>
     <Copy SourceFiles="@(_PublicPackageFiles)" DestinationFolder="$(_PublicPackageDir)" />
     <Copy SourceFiles="$(ProjectDir)$(AssemblyName).json" DestinationFolder="$(TargetDir)$(AssemblyName)" />

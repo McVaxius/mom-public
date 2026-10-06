@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language" xml:space="preserve"><value>Ngôn ngữ</value></data>
+  <data name="Color" xml:space="preserve"><value>Màu</value></data>
+  <data name="Teal" xml:space="preserve"><value>Xanh ngọc</value></data>
+  <data name="Blue" xml:space="preserve"><value>Xanh dương</value></data>
+  <data name="Pink" xml:space="preserve"><value>Hồng</value></data>
+  <data name="Custom RGB" xml:space="preserve"><value>RGB tùy chỉnh</value></data>
+  <data name="Compact mode" xml:space="preserve"><value>Chế độ gọn</value></data>
+  <data name="By DhogGPT" xml:space="preserve"><value>Bởi DhogGPT</value></data>
+  <data name="Public access host" xml:space="preserve"><value>Plugin truy cập công khai</value></data>
+  <data name="Public introduction" xml:space="preserve"><value>Giới thiệu công khai</value></data>
+  <data name="Welcome to MOM" xml:space="preserve"><value>Chào mừng đến với MOM</value></data>
+  <data name="Welcome" xml:space="preserve"><value>MOM là dự án cộng đồng dành cho Final Fantasy XIV, cung cấp quyền truy cập nội dung chia sẻ qua plugin truy cập công khai.</value></data>
+  <data name="AccessBoundary" xml:space="preserve"><value>Plugin công khai này miễn phí. Các chức năng bổ sung được phân phối qua quyền truy cập được cấp riêng. Liên hệ cộng đồng để biết khả năng cung cấp và nhận hỗ trợ.</value></data>
+  <data name="CommunityCredit" xml:space="preserve"><value>Dự án hợp tác cộng đồng bởi DhogGPT.</value></data>
+  <data name="Help and discussion" xml:space="preserve"><value>Trợ giúp và thảo luận</value></data>
+  <data name="CommunityHelp" xml:space="preserve"><value>Ghé kênh The Dumpster Fire trên Discord để nhận trợ giúp về plugin, thảo luận, đặt câu hỏi, chia sẻ trải nghiệm và xem thông báo.</value></data>
+  <data name="Join Discord" xml:space="preserve"><value>Tham gia Discord</value></data>
+  <data name="Support on Ko-fi" xml:space="preserve"><value>Ủng hộ trên Ko-fi</value></data>
+  <data name="SupportBoundary" xml:space="preserve"><value>Việc ủng hộ giúp dự án và không tự động cấp quyền truy cập.</value></data>
+  <data name="Already have an access download?" xml:space="preserve"><value>Bạn đã có bản tải xuống để truy cập?</value></data>
+  <data name="InstallAccess" xml:space="preserve"><value>Giữ plugin công khai này được cài đặt và bật. Trong /apm, thêm mom vào danh sách plugin và tin cậy nhà phát hành. Sao chép liên kết ZIP truy cập trực tiếp, rồi nhấn nút chung Check clipboard for updates. APM sẽ cài đặt bản cập nhật truy cập và tải lại MOM.</value></data>
+  <data name="Refresh access" xml:space="preserve"><value>Làm mới quyền truy cập</value></data>
+  <data name="RefreshExplanation" xml:space="preserve"><value>Thao tác này kiểm tra và tải mô-đun truy cập hiện có của bạn.</value></data>
+  <data name="Access needs attention" xml:space="preserve"><value>Quyền truy cập cần chú ý</value></data>
+  <data name="AccessFailure" xml:space="preserve"><value>Không thể kích hoạt quyền truy cập. Kiểm tra nhật ký Dalamud hoặc liên hệ nhà phát hành để có bản cập nhật tương thích.</value></data>
+  <data name="Access status" xml:space="preserve"><value>Trạng thái truy cập</value></data>
+  <data name="Active" xml:space="preserve"><value>Đang hoạt động</value></data>
+  <data name="No access module installed" xml:space="preserve"><value>Chưa cài mô-đun truy cập</value></data>
+  <data name="Get the full plugin on Discord" xml:space="preserve"><value>Lấy plugin đầy đủ trên Discord</value></data>
+  <data name="Install the full plugin with APM" xml:space="preserve"><value>Cài plugin đầy đủ bằng APM</value></data>
+  <data name="ShellWelcome" xml:space="preserve"><value>Chào mừng đến với MOM. Plugin công khai này cung cấp phần giới thiệu và hướng dẫn cài đặt. Lấy plugin đầy đủ qua Discord và cài bằng Aethertek Plugin Manager (APM).</value></data>
+  <data name="ShellStep1" xml:space="preserve"><value>1. Sao chép URL ZIP trực tiếp của plugin đầy đủ từ Discord (mom.zip hoặc mom-v&lt;version&gt;.zip).</value></data>
+  <data name="ShellStep2" xml:space="preserve"><value>2. Mở /apm và chọn I trust the publisher.</value></data>
+  <data name="ShellStep3" xml:space="preserve"><value>3. Chọn mom trong danh sách plugin phát triển của APM.</value></data>
+  <data name="ShellStep4" xml:space="preserve"><value>4. Chọn Update selected plugin from clipboard.</value></data>
+  <data name="ShellFinish" xml:space="preserve"><value>Giữ APM được bật cho đến khi cập nhật hoàn tất. Plugin đầy đủ sẽ thay phần giới thiệu này và mở bằng /mom.</value></data>
+  <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>Đang chuẩn bị phông chữ giao diện MOM...</value></data>
+  <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>Không thể sử dụng phông chữ giao diện MOM. Xem nhật ký Dalamud.</value></data>
+</root>

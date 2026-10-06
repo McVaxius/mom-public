@@ -1,4 +1,5 @@
 using System.Numerics;
+using AethertekUI;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Windowing;
@@ -10,67 +11,118 @@ namespace mom.PublicShell;
 
 internal sealed class IntroductionWindow : Window
 {
+    private readonly AethertekUI.Dalamud.MaterialWindowMotion motion = new();
     private const string DiscordUrl = "https://discord.gg/VsXqydsvpu";
     private const string SupportUrl = "https://ko-fi.com/mcvaxius";
-    private static readonly Vector4 Accent = new(0.65f, 0.57f, 1f, 1f);
     private readonly ISharedImmediateTexture icon;
     private readonly ModuleLoader loader;
     private readonly Action refresh;
-
-    public IntroductionWindow(IDalamudPluginInterface pi, ITextureProvider textures, ModuleLoader loader, Action refresh)
+    private readonly PublicUi ui;
+    public IntroductionWindow(IDalamudPluginInterface pi, ITextureProvider textures, ModuleLoader loader, Action refresh, PublicUi ui)
         : base($"MOM v{BuildInfo.Version}##Information")
     {
-        this.loader = loader;
-        this.refresh = refresh;
-        Size = new Vector2(600, 530);
-        SizeCondition = ImGuiCond.Appearing;
+        this.loader = loader; this.refresh = refresh; this.ui = ui;
+        Size = new Vector2(1472, 932);
+        SizeCondition = ImGuiCond.FirstUseEver;
         SizeConstraints = new WindowSizeConstraints { MinimumSize = new Vector2(360, 380), MaximumSize = new Vector2(float.MaxValue) };
         icon = textures.GetFromFile(Path.Combine(pi.AssemblyLocation.DirectoryName!, "icon.png"));
     }
+    public override void PreDraw() => motion.Prepare(this, reducedMotion: false, roundedCorners: true);
+    public override void PostDraw() => motion.Restore(this);
 
     public override void Draw()
     {
+        motion.DrawChrome();
+        var narrow = ImGui.GetWindowSize().X < 620 * ImGui.GetIO().FontGlobalScale;
+        using var scale = new UiStyle.TextScale((ui.Compact ? narrow ? 14 : 14.4f : narrow ? 15 : 24) / 11);
+        DrawContent();
+    }
+    private void DrawContent()
+    {
         var scale = ImGui.GetIO().FontGlobalScale;
-        ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(12, 6) * scale);
-        ImGui.PushStyleVar(ImGuiStyleVar.ChildRounding, 10 * scale);
-        ImGui.PushStyleVar(ImGuiStyleVar.FrameRounding, 6 * scale);
-        try
+        var root = ImGui.GetID("");
+        ImGui.BeginGroup();
+        if (icon.TryGetWrap(out var texture, out _)) { ImGui.Image(texture.Handle, new Vector2(ui.Compact ? 32 : 44) * scale); ImGui.SameLine(); }
+        using (ui.Font(UiFontRole.Title))
         {
-            if (icon.TryGetWrap(out var texture, out _)) { ImGui.Image(texture.Handle, new Vector2(54) * scale); ImGui.SameLine(); }
-            ImGui.BeginGroup();
-            ImGui.TextColored(Accent, "M O M");
-            ImGui.TextUnformatted("By DhogGPT");
-            ImGui.EndGroup();
-            ImGui.Separator();
-            Card("About", "Welcome to MOM", "The public plugin is free. Additional functionality is distributed through privately granted access. Contact the community for availability and support.");
-            ImGui.TextColored(Accent, "CONNECT WITH THE COMMUNITY");
-            if (ImGui.Button("Join Discord", new Vector2(0, 32 * scale))) Util.OpenLink(DiscordUrl);
+            using var titleScale = new UiStyle.TextScale(42f * 11 / (24 * 18));
+            ImGui.TextColored(MaterialTheme.Current.Colors.Primary, "M");
+            ImGui.SameLine(0, ImGui.CalcTextSize(" ").X + (ui.Compact ? 6 : 10) * scale);
+            ImGui.TextColored(MaterialTheme.Current.Colors.Primary, "O");
+            ImGui.SameLine(0, ImGui.CalcTextSize(" ").X + (ui.Compact ? 6 : 10) * scale);
+            ImGui.TextColored(MaterialTheme.Current.Colors.Primary, "M");
+        }
+        ImGui.EndGroup();
+        if (ImGui.GetContentRegionAvail().X > 550 * scale) ImGui.SameLine();
+        ImGui.BeginGroup();
+        using (ui.Font(UiFontRole.Caption))
+        {
+            ImGui.TextDisabled("v" + BuildInfo.Version);
+            ImGui.TextDisabled(ui.T("By DhogGPT"));
+        }
+        ImGui.EndGroup();
+        if (ImGui.GetContentRegionAvail().X > 480 * scale)
+        {
             ImGui.SameLine();
-            if (ImGui.Button("Support on Ko-fi", new Vector2(0, 32 * scale))) Util.OpenLink(SupportUrl);
-            Card("Community", "Help and discussion", "Visit The Dumpster Fire channel on Discord. Supporting the project does not automatically grant access.");
-            Card("Access", "Already have an access download?", "Keep this public plugin installed and enabled. In APM, include mom in the plugin list, enable Advanced options, trust the publisher, and Ctrl+click the second refresh button with the direct mom access ZIP link on your clipboard. APM installs the access update and reloads MOM.");
+            ImGui.SetCursorPosX(Math.Max(ImGui.GetCursorPosX(), ImGui.GetWindowSize().X - ImGui.GetStyle().WindowPadding.X - (ui.Compact ? 290 : 470) * scale));
+        }
+        ui.Appearance();
+        ui.Paragraph("Public access host");
+        ImGui.Separator();
+        var columns = ImGui.GetContentRegionAvail().X >= (ui.Compact ? 780 : 1230) * scale ? 3 : 1;
+        var width = (ImGui.GetContentRegionAvail().X - ImGui.GetStyle().ItemSpacing.X * (columns - 1)) / columns;
+        var height = MathF.Max((ui.Compact ? 390 : 646) * scale, ImGui.GetContentRegionAvail().Y - ImGui.GetFrameHeightWithSpacing() - 24 * scale);
+        Card("About", root, width, height, MaterialIcon.Group, () =>
+        {
+            ui.Heading("Welcome to MOM");
+            ui.Paragraph("Welcome");
+            ImGui.Spacing(); ui.Paragraph("AccessBoundary");
+            ImGui.Spacing(); ImGui.Separator();
+            using (ui.Font(UiFontRole.Caption)) ui.Paragraph("CommunityCredit");
+        });
+        if (columns > 1) ImGui.SameLine();
+        Card("Community", root, width, height, MaterialIcon.Chat, () =>
+        {
+            ui.Heading("Help and discussion");
+            ui.Paragraph("CommunityHelp");
+            ImGui.Spacing();
+            using (ui.Font(ImGui.GetContentRegionAvail().X < 300 * scale ? UiFontRole.Caption : UiFontRole.Action))
+            {
+                if (UiStyle.NativeButton("Join Discord", ui.T("Join Discord"), new(-1, (ui.Compact ? 48 : 76) * scale), true, MaterialIcon.Chat)) Util.OpenLink(DiscordUrl);
+                if (UiStyle.NativeButton("Support on Ko-fi", ui.T("Support on Ko-fi"), new(-1, (ui.Compact ? 48 : 76) * scale), icon: MaterialIcon.Heart)) Util.OpenLink(SupportUrl);
+            }
+            ui.Paragraph("SupportBoundary");
+        });
+        if (columns > 1) ImGui.SameLine();
+        Card("Access", root, width, height, MaterialIcon.Download, () =>
+        {
+            ui.Heading("Already have an access download?");
+            ui.Paragraph("InstallAccess");
+            ImGui.Spacing();
+            using (ui.Font(ImGui.GetContentRegionAvail().X < 300 * scale ? UiFontRole.Caption : UiFontRole.Action))
+                if (UiStyle.NativeButton("Refresh access", ui.T("Refresh access"), new(-1, (ui.Compact ? 48 : 76) * scale), true, MaterialIcon.Refresh)) refresh();
+            ui.Paragraph("RefreshExplanation");
             if (loader.Failed)
             {
-                ImGui.TextColored(new Vector4(1f, .73f, .4f, 1f), "Access needs attention");
-                ImGui.TextWrapped("Access could not be activated. Check the Dalamud log or contact the publisher for a compatible update.");
+                ImGui.PushStyleColor(ImGuiCol.Text, UiStyle.Warning);
+                ui.Paragraph("Access needs attention");
+                ImGui.PopStyleColor();
+                ui.Paragraph("AccessFailure");
             }
-            if (ImGui.Button("Refresh access", new Vector2(0, 28 * scale))) refresh();
-        }
-        finally { ImGui.PopStyleVar(3); }
+        });
+        ImGui.Separator();
+        ImGui.PushStyleColor(ImGuiCol.Text, loader.Failed ? UiStyle.Warning : loader.Module != null ? UiStyle.Ready : MaterialTheme.Current.Colors.OnSurfaceVariant);
+        ui.Text(ui.T("Access status") + "  ·  " + ui.T(loader.Failed ? "Access needs attention" : loader.Module != null ? "Active" : "No access module installed"));
+        ImGui.PopStyleColor();
     }
-
-    private static void Card(string id, string title, string description)
+    private void Card(string id, uint root, float width, float height, MaterialIcon symbol, Action draw)
     {
-        var padding = ImGui.GetStyle().WindowPadding;
-        var width = Math.Max(1, ImGui.GetContentRegionAvail().X - padding.X * 2);
-        var height = ImGui.GetTextLineHeight() + ImGui.GetStyle().ItemSpacing.Y + ImGui.CalcTextSize(description, false, width).Y + padding.Y * 2;
-        ImGui.PushStyleColor(ImGuiCol.ChildBg, new Vector4(.12f, .12f, .17f, .8f));
-        try
+        UiStyle.Panel(id, root, new(width, height), () =>
         {
-            var visible = ImGui.BeginChild(id, new Vector2(0, height), true, ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse);
-            try { if (visible) { ImGui.TextColored(Accent, title); ImGui.TextWrapped(description); } }
-            finally { ImGui.EndChild(); }
-        }
-        finally { ImGui.PopStyleColor(); }
+            var pos = ImGui.GetCursorScreenPos();
+            MaterialIcons.Draw(symbol, pos, (ui.Compact ? 34 : 80) * ImGui.GetIO().FontGlobalScale, MaterialTheme.Current.Colors.Primary);
+            ImGui.Dummy(new Vector2((ui.Compact ? 40 : 92) * ImGui.GetIO().FontGlobalScale));
+            draw();
+        }, padding: ui.Compact ? 14 : 32, radius: ui.Compact ? 4 : 8);
     }
 }

@@ -8,55 +8,93 @@ on:
   workflow_dispatch:
 
 env:
+  PLUGIN_NAME: mom
   PROJECT_FILE: mom.csproj
   INTERNAL_NAME: mom
-  RELEASE_DIR: bin/x64/Release/mom
+  RELEASE_DIR: mom-public\bin/x64/Release/mom
+
+permissions:
+  contents: read
 
 jobs:
   build:
+    defaults:
+      run:
+        working-directory: mom-public
     runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          path: mom-public
+          submodules: recursive
+          persist-credentials: false
+
+      - name: Checkout AethertekUI
+        uses: actions/checkout@v4
+        with:
+          repository: McVaxius/aethertekUI
+          path: aethertekUI
+          ssh-key: ${{ secrets.AETHERTEKUI_DEPLOY_KEY }}
+          persist-credentials: false
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.201"
+
+      - name: Download Dalamud
+        run: |
+          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile latest.zip
+          Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
+
+      - name: Build
+        run: |
+          $dalamudLibPath = "$env:AppData/XIVLauncher/addon/Hooks/dev"
+          dotnet restore "mom.csproj" -p:Configuration=Release -p:Platform=x64 -p:DalamudLibPath="$dalamudLibPath"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          dotnet build "mom.csproj" --configuration Release --no-restore -p:Platform=x64 -p:DalamudLibPath="$dalamudLibPath"
+        env:
+          DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.PLUGIN_NAME }}-artifact
+          path: |
+            ${{ env.RELEASE_DIR }}\latest.zip
+            ${{ env.RELEASE_DIR }}\${{ env.INTERNAL_NAME }}.json
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - name: Download Build Artifact
+        uses: actions/download-artifact@v4
         with:
-          dotnet-version: "10.0.x"
+          name: ${{ env.PLUGIN_NAME }}-artifact
+          path: artifact
 
-      - name: Download Dalamud
-        shell: pwsh
-        run: |
-          Invoke-WebRequest -Uri https://goatcorp.github.io/dalamud-distrib/latest.zip -OutFile latest.zip
-          Expand-Archive -Force latest.zip "$env:AppData\XIVLauncher\addon\Hooks\dev\"
-
-      - name: Build
-        shell: pwsh
-        run: |
-          dotnet restore -r win "${{ env.PROJECT_FILE }}"
-          dotnet build "${{ env.PROJECT_FILE }}" --configuration Release --no-restore -p:Platform=x64
-        env:
-          DOTNET_CLI_TELEMETRY_OPTOUT: true
-
-      - name: Determine release version
+      - name: Determine Release Version
         id: get_version
-        shell: pwsh
+        shell: bash
+        env:
+          INTERNAL_NAME: ${{ env.INTERNAL_NAME }}
         run: |
-          if ("${{ github.ref_type }}" -eq "tag") {
-            $version = "${{ github.ref_name }}"
-          } else {
-            $manifestPath = Join-Path "${{ env.RELEASE_DIR }}" "${{ env.INTERNAL_NAME }}.json"
-            $manifest = Get-Content -LiteralPath $manifestPath -Raw | ConvertFrom-Json
-            if ($manifest -is [array]) {
-              $manifest = $manifest[0]
-            }
-            $version = "v$($manifest.AssemblyVersion)"
-          }
-          "version=$version" >> $env:GITHUB_OUTPUT
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "version=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+          else
+            version="$(python3 -c "import json, os; from pathlib import Path; manifest_path = Path('artifact') / f\"{os.environ['INTERNAL_NAME']}.json\"; manifest = json.loads(manifest_path.read_text(encoding='utf-8')); manifest = manifest[0] if isinstance(manifest, list) else manifest; print(f\"v{manifest['AssemblyVersion']}\")")"
+            echo "version=${version}" >> "$GITHUB_OUTPUT"
+          fi
 
-      - name: Create release
+      - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ steps.get_version.outputs.version }}
@@ -64,7 +102,7 @@ jobs:
           draft: false
           prerelease: false
           files: |
-            ${{ env.RELEASE_DIR }}/latest.zip
-            ${{ env.RELEASE_DIR }}/${{ env.INTERNAL_NAME }}.json
+            artifact/latest.zip
+            artifact/${{ env.INTERNAL_NAME }}.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

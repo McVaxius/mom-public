@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language" xml:space="preserve"><value>Язык</value></data>
+  <data name="Color" xml:space="preserve"><value>Цвет</value></data>
+  <data name="Teal" xml:space="preserve"><value>Бирюзовый</value></data>
+  <data name="Blue" xml:space="preserve"><value>Синий</value></data>
+  <data name="Pink" xml:space="preserve"><value>Розовый</value></data>
+  <data name="Custom RGB" xml:space="preserve"><value>Свой RGB</value></data>
+  <data name="Compact mode" xml:space="preserve"><value>Компактный режим</value></data>
+  <data name="By DhogGPT" xml:space="preserve"><value>Автор: DhogGPT</value></data>
+  <data name="Public access host" xml:space="preserve"><value>Публичный узел доступа</value></data>
+  <data name="Public introduction" xml:space="preserve"><value>Публичное введение</value></data>
+  <data name="Welcome to MOM" xml:space="preserve"><value>Добро пожаловать в MOM</value></data>
+  <data name="Welcome" xml:space="preserve"><value>MOM — проект сообщества Final Fantasy XIV, предоставляющий доступ к общему содержимому через публичный узел.</value></data>
+  <data name="AccessBoundary" xml:space="preserve"><value>Публичный плагин бесплатен. Дополнительные функции распространяются через частный доступ. Уточняйте доступность и поддержку в сообществе.</value></data>
+  <data name="CommunityCredit" xml:space="preserve"><value>Совместный проект сообщества от DhogGPT.</value></data>
+  <data name="Help and discussion" xml:space="preserve"><value>Помощь и обсуждение</value></data>
+  <data name="CommunityHelp" xml:space="preserve"><value>Посетите канал The Dumpster Fire в Discord для помощи с плагином, обсуждений, вопросов, обмена опытом и объявлений.</value></data>
+  <data name="Join Discord" xml:space="preserve"><value>Присоединиться к Discord</value></data>
+  <data name="Support on Ko-fi" xml:space="preserve"><value>Поддержать на Ko-fi</value></data>
+  <data name="SupportBoundary" xml:space="preserve"><value>Поддержка помогает проекту и не предоставляет доступ автоматически.</value></data>
+  <data name="Already have an access download?" xml:space="preserve"><value>Уже получили загрузку доступа?</value></data>
+  <data name="InstallAccess" xml:space="preserve"><value>Оставьте публичный плагин установленным и включённым. В /apm добавьте mom в список и подтвердите доверие издателю. Скопируйте прямую ссылку на ZIP доступа и нажмите общую кнопку проверки обновлений из буфера обмена. APM установит доступ и перезагрузит MOM.</value></data>
+  <data name="Refresh access" xml:space="preserve"><value>Обновить доступ</value></data>
+  <data name="RefreshExplanation" xml:space="preserve"><value>Проверяет и загружает существующий модуль доступа.</value></data>
+  <data name="Access needs attention" xml:space="preserve"><value>Доступ требует внимания</value></data>
+  <data name="AccessFailure" xml:space="preserve"><value>Не удалось активировать доступ. Проверьте журнал Dalamud или запросите совместимое обновление у издателя.</value></data>
+  <data name="Access status" xml:space="preserve"><value>Состояние доступа</value></data>
+  <data name="Active" xml:space="preserve"><value>Активно</value></data>
+  <data name="No access module installed" xml:space="preserve"><value>Модуль доступа не установлен</value></data>
+  <data name="Get the full plugin on Discord" xml:space="preserve"><value>Получить полный плагин в Discord</value></data>
+  <data name="Install the full plugin with APM" xml:space="preserve"><value>Установить полный плагин через APM</value></data>
+  <data name="ShellWelcome" xml:space="preserve"><value>Добро пожаловать в MOM. Публичный плагин содержит введение и инструкции. Получите полный плагин в Discord и установите через Aethertek Plugin Manager (APM).</value></data>
+  <data name="ShellStep1" xml:space="preserve"><value>1. Скопируйте прямую ссылку на ZIP полного плагина из Discord (mom.zip или mom-v&lt;version&gt;.zip).</value></data>
+  <data name="ShellStep2" xml:space="preserve"><value>2. Откройте /apm и подтвердите доверие издателю.</value></data>
+  <data name="ShellStep3" xml:space="preserve"><value>3. Выберите mom в списке плагинов разработки APM.</value></data>
+  <data name="ShellStep4" xml:space="preserve"><value>4. Выберите обновление выбранного плагина из буфера обмена.</value></data>
+  <data name="ShellFinish" xml:space="preserve"><value>Оставьте APM включённым до завершения. Полный плагин заменит это введение и открывается через /mom.</value></data>
+  <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>Подготовка шрифтов интерфейса MOM...</value></data>
+  <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>Шрифты интерфейса MOM недоступны. См. журнал Dalamud.</value></data>
+</root>

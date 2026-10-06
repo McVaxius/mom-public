@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Language" xml:space="preserve"><value>语言</value></data>
+  <data name="Color" xml:space="preserve"><value>颜色</value></data>
+  <data name="Teal" xml:space="preserve"><value>青绿</value></data>
+  <data name="Blue" xml:space="preserve"><value>蓝色</value></data>
+  <data name="Pink" xml:space="preserve"><value>粉色</value></data>
+  <data name="Custom RGB" xml:space="preserve"><value>自定义 RGB</value></data>
+  <data name="Compact mode" xml:space="preserve"><value>紧凑模式</value></data>
+  <data name="By DhogGPT" xml:space="preserve"><value>作者：DhogGPT</value></data>
+  <data name="Public access host" xml:space="preserve"><value>公开访问宿主</value></data>
+  <data name="Public introduction" xml:space="preserve"><value>公开介绍</value></data>
+  <data name="Welcome to MOM" xml:space="preserve"><value>欢迎使用 MOM</value></data>
+  <data name="Welcome" xml:space="preserve"><value>MOM 是 Final Fantasy XIV 社区项目，通过公开访问宿主提供共享内容。</value></data>
+  <data name="AccessBoundary" xml:space="preserve"><value>公开插件免费。附加功能通过私下授权的访问分发。请联系社区了解可用性并获取支持。</value></data>
+  <data name="CommunityCredit" xml:space="preserve"><value>DhogGPT 发起的社区协作项目。</value></data>
+  <data name="Help and discussion" xml:space="preserve"><value>帮助与讨论</value></data>
+  <data name="CommunityHelp" xml:space="preserve"><value>请访问 Discord 的 The Dumpster Fire 频道，获取插件帮助、讨论、提问、交流经验并查看公告。</value></data>
+  <data name="Join Discord" xml:space="preserve"><value>加入 Discord</value></data>
+  <data name="Support on Ko-fi" xml:space="preserve"><value>在 Ko-fi 支持</value></data>
+  <data name="SupportBoundary" xml:space="preserve"><value>支持有助于项目发展，但不会自动授予访问权限。</value></data>
+  <data name="Already have an access download?" xml:space="preserve"><value>已有访问下载文件？</value></data>
+  <data name="InstallAccess" xml:space="preserve"><value>请保持公开插件已安装并启用。在 /apm 中将 mom 加入列表并信任发布者。复制访问 ZIP 的直接链接，点击全局剪贴板更新检查按钮。APM 会安装访问更新并重新加载 MOM。</value></data>
+  <data name="Refresh access" xml:space="preserve"><value>刷新访问</value></data>
+  <data name="RefreshExplanation" xml:space="preserve"><value>检查并加载现有访问模块。</value></data>
+  <data name="Access needs attention" xml:space="preserve"><value>访问需要处理</value></data>
+  <data name="AccessFailure" xml:space="preserve"><value>无法激活访问。请检查 Dalamud 日志或联系发布者获取兼容更新。</value></data>
+  <data name="Access status" xml:space="preserve"><value>访问状态</value></data>
+  <data name="Active" xml:space="preserve"><value>已激活</value></data>
+  <data name="No access module installed" xml:space="preserve"><value>未安装访问模块</value></data>
+  <data name="Get the full plugin on Discord" xml:space="preserve"><value>在 Discord 获取完整插件</value></data>
+  <data name="Install the full plugin with APM" xml:space="preserve"><value>使用 APM 安装完整插件</value></data>
+  <data name="ShellWelcome" xml:space="preserve"><value>欢迎使用 MOM。此公开插件提供介绍和安装指南。请从 Discord 获取完整插件并使用 Aethertek Plugin Manager（APM）安装。</value></data>
+  <data name="ShellStep1" xml:space="preserve"><value>1. 从 Discord 复制完整插件 ZIP 的直接 URL（mom.zip 或 mom-v&lt;version&gt;.zip）。</value></data>
+  <data name="ShellStep2" xml:space="preserve"><value>2. 打开 /apm 并勾选信任发布者。</value></data>
+  <data name="ShellStep3" xml:space="preserve"><value>3. 在 APM 的开发插件列表中选择 mom。</value></data>
+  <data name="ShellStep4" xml:space="preserve"><value>4. 选择从剪贴板更新所选插件。</value></data>
+  <data name="ShellFinish" xml:space="preserve"><value>更新完成前请保持 APM 启用。完整插件将替换此介绍并可通过 /mom 打开。</value></data>
+  <data name="Preparing MOM interface fonts..." xml:space="preserve"><value>正在准备 MOM 界面字体...</value></data>
+  <data name="MOM interface fonts are unavailable. See the Dalamud log." xml:space="preserve"><value>MOM 界面字体不可用。请查看 Dalamud 日志。</value></data>
+</root>
