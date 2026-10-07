@@ -115,6 +115,10 @@ public sealed class Plugin : IDalamudPlugin
     {
         internal static ReleaseDecision Capture(IDalamudPluginInterface pluginInterface)
         {
+#if LOCAL_DEV_BUILD
+            // Private developer hosts also link this source; their runtime policy is separately scoped.
+            return new ReleaseDecision(true, "<local-development>", "Public release policy is not applied to local development builds.");
+#else
             try
             {
                 var info = pluginInterface.GetDalamudVersion();
@@ -129,6 +133,7 @@ public sealed class Plugin : IDalamudPlugin
             {
                 return new ReleaseDecision(false, "<unknown>", $"Branch check failed: {error.GetType().Name}: {error.Message}");
             }
+#endif
         }
     }
 

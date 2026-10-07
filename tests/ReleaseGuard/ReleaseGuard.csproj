@@ -5,5 +5,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(ReleaseGuardLocalDev)' == 'true'">
+    <DefineConstants>$(DefineConstants);LOCAL_DEV_BUILD</DefineConstants>
+  </PropertyGroup>
   <ItemGroup><Compile Include="../../Plugin.cs" Link="Plugin.cs" /></ItemGroup>
 </Project>

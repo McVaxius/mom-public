@@ -26,10 +26,13 @@ requires restarting the game.
 Release eligibility does not replace signature, manifest, ABI or exact dependency
 checks. Delivering this guard requires a public-host update; private build and
 package processes are unaffected.
+Developer hosts that link this source retain their existing behavior through the
+existing `LOCAL_DEV_BUILD` compile flag.
 
 Run `dotnet run --project tests/ReleaseGuard/ReleaseGuard.csproj -c Release`
 for source-linked lifecycle tests with synthetic Dalamud/UI/package services.
 They cover host behavior, not protected packaging or live Dalamud/APM acceptance.
+Pass `-p:ReleaseGuardLocalDev=true` to check the shared developer-host path.
 
 ## Community
 

@@ -16,6 +16,23 @@ Host Create(State state)
 }
 mom.PublicShell.ModuleLoader Loader(Host host) => (mom.PublicShell.ModuleLoader)typeof(Host).GetField("loader", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(host)!;
 
+#if LOCAL_DEV_BUILD
+foreach (var track in new[] { "release", "stg", "dev", "api99", null })
+{
+    var state = new State { Track = track, ThrowDetection = true };
+    var host = Create(state);
+    Check(state.Reads == 0 && state.Loads == 1 && Loader(host).Module != null && state.Errors == 0, "Local developer builds preserve their runtime policy without running the public detector.");
+    Check(state.IntroductionCreates == 1 && state.PresentationCreates == 1, "Local developer builds retain the existing UI.");
+    state.Interface.UiBuilder.DrawNow();
+    state.Commands.Handlers[commands[0]](commands[0], "status");
+    Check(state.PrivateDraws == 1 && state.CommandCalls.Count == 1 && !state.FrameText.Contains(message), "Local callbacks retain forwarding.");
+    Check(state.Interface.GetIpcProvider<byte[], bool>(prefix + "Validate.v1").Callback!([1]) && state.PackageChecks == 1, "Local access validation is unchanged.");
+    Check(state.Interface.GetIpcProvider<bool>(prefix + "Refresh.v1").Callback!() && state.Loads == 2, "Local refresh is unchanged.");
+    host.Dispose();
+    Check(state.LoaderDisposals == 1 && state.Interface.Registered == 0 && state.Windows.Count == 0, "Local cleanup is unchanged.");
+}
+Console.WriteLine($"PASS: {checks} source-linked local-development compatibility checks.");
+#else
 var cases = new List<(string? Track, bool Allowed)>
 {
     ("release", true), (" RELEASE ", true), ("ReLeAsE", true), ("stg", false), ("dev", false),
@@ -120,3 +137,4 @@ using (Create(reload)) { }
 reload.Track = "release";
 using (Create(reload)) { Check(reload.Reads == 2 && reload.Loads == 1, "Reload creates exactly one fresh decision."); }
 Console.WriteLine($"PASS: {checks} source-linked mom release-guard checks. Dalamud/UI/package/module services are synthetic; no private or game code runs.");
+#endif
