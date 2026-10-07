@@ -153,24 +153,65 @@ internal sealed class ModuleLoader : IDisposable
                     throw new FileLoadException("Embedded access dependency identity mismatch: " + name.FullName);
                 return dependency;
             }
-            var runtime = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-            var dalamud = Path.GetDirectoryName(typeof(IDalamudPluginInterface).Assembly.Location)!;
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                if (assembly.IsDynamic || assembly.GetName().FullName != name.FullName) continue;
-                var directory = Path.GetDirectoryName(assembly.Location);
-                if (string.Equals(directory, runtime, StringComparison.OrdinalIgnoreCase) ||
-                    string.Equals(directory, dalamud, StringComparison.OrdinalIgnoreCase)) return assembly;
-            }
             if (string.IsNullOrEmpty(name.Name) || name.Name.IndexOfAny(new[] { '/', '\\', ':' }) >= 0)
                 throw new FileLoadException("Invalid access dependency.");
-            foreach (var directory in new[] { runtime, dalamud })
+            var runtimeAssembly = typeof(object).Assembly;
+            var dalamudAssembly = typeof(IDalamudPluginInterface).Assembly;
+            var locations = new[]
             {
-                var path = Path.Combine(directory, name.Name + ".dll");
-                if (!File.Exists(path) || AssemblyName.GetAssemblyName(path).FullName != name.FullName) continue;
-                return AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+                (Directory: Path.GetDirectoryName(runtimeAssembly.Location)!, Context: GetLoadContext(runtimeAssembly)!),
+                (Directory: Path.GetDirectoryName(dalamudAssembly.Location)!, Context: GetLoadContext(dalamudAssembly)!),
+            };
+            var diagnostics = new System.Text.StringBuilder("Unsupported access dependency: " + name.FullName);
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if (assembly.IsDynamic || !string.Equals(assembly.GetName().Name, name.Name, StringComparison.OrdinalIgnoreCase)) continue;
+                var directory = Path.GetDirectoryName(assembly.Location);
+                var owner = GetLoadContext(assembly);
+                var trustedDirectory = locations.Any(location => string.Equals(directory, location.Directory, StringComparison.OrdinalIgnoreCase));
+                var trustedContext = locations.Any(location => string.Equals(directory, location.Directory, StringComparison.OrdinalIgnoreCase) && ReferenceEquals(owner, location.Context));
+                // Full identity remains mandatory, including version, culture and public-key token.
+                if (assembly.GetName().FullName == name.FullName && trustedContext) return assembly;
+                var reason = assembly.GetName().FullName != name.FullName ? "identity mismatch"
+                    : !trustedDirectory ? "outside trusted directories" : "unexpected load context";
+                diagnostics.AppendLine().Append("Loaded candidate: ").Append(DescribeAssembly(assembly)).Append("; rejected: ").Append(reason);
             }
-            throw new FileNotFoundException("Unsupported access dependency: " + name.FullName);
+            foreach (var location in locations)
+            {
+                var path = Path.Combine(location.Directory, name.Name + ".dll");
+                diagnostics.AppendLine().Append("Disk candidate: ").Append(path).Append("; context: ").Append(location.Context.Name ?? "<unnamed>");
+                if (!File.Exists(path))
+                {
+                    diagnostics.Append("; rejected: file missing");
+                    continue;
+                }
+                try
+                {
+                    var identity = AssemblyName.GetAssemblyName(path);
+                    diagnostics.Append("; available: ").Append(identity.FullName);
+                    if (identity.FullName != name.FullName)
+                    {
+                        diagnostics.Append("; rejected: identity mismatch");
+                        continue;
+                    }
+                    // Use the owner of the runtime/Dalamud directory, never a second default-context copy.
+                    var resolved = location.Context.LoadFromAssemblyPath(path);
+                    if (resolved.GetName().FullName == name.FullName &&
+                        ReferenceEquals(GetLoadContext(resolved), location.Context) &&
+                        string.Equals(Path.GetDirectoryName(resolved.Location), location.Directory, StringComparison.OrdinalIgnoreCase)) return resolved;
+                    diagnostics.Append("; rejected: returned assembly identity/origin/context differs: ").Append(DescribeAssembly(resolved));
+                }
+                catch (Exception error) when (error is IOException or BadImageFormatException or UnauthorizedAccessException)
+                {
+                    diagnostics.Append("; rejected: ").Append(error.GetType().Name).Append(": ").Append(error.Message);
+                }
+            }
+            diagnostics.AppendLine().Append("Use a private build matching the active Dalamud dependencies. Check the active Dalamud release channel before reporting this error.");
+            throw new FileNotFoundException(diagnostics.ToString(), name.Name + ".dll");
         }
+
+        private static string DescribeAssembly(Assembly assembly) =>
+            assembly.GetName().FullName + "; location: " + (string.IsNullOrEmpty(assembly.Location) ? "<in-memory>" : assembly.Location) +
+            "; context: " + (GetLoadContext(assembly)?.Name ?? "<unnamed>");
     }
 }
