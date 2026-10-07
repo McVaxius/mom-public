@@ -6,6 +6,34 @@ Open `/mom` for information, community links, and access status. The public plug
 
 The introduction has regular and compact layouts, an optional fifteen-language picker and `C` checkbox, a transparency switch, and Window appearance settings. Settings retain colour, compact and language access when main controls are hidden. Opacity defaults to 100%, with automatic fade to 50% after ten seconds without window focus; normal/faded opacity and delay save through the existing shared configuration. Available languages include Vietnamese, Brazilian Portuguese, Indonesian, Polish, Turkish and Hindi. Preferences update the complete theme and preserve private fields in the shared configuration. Managed Segoe, symbol and selected CJK fonts wait for verified glyph coverage before drawing; Hindi uses Windows-shaped Nirmala UI text. Font loading and error messages use the selected language. Community support and privately granted access remain separate; **Refresh access** checks and loads an existing module through the host's original loader.
 
+## Dalamud Release requirement
+
+The public host checks the running Dalamud `BetaTrack` once when the plugin
+instance is created. Only `release` (ignoring case and surrounding whitespace)
+allows normal access loading. Staging, dev, `apiNN` previews, unknown/blank tracks
+and detection errors keep the public shell enabled and immediately show only:
+
+> You are not on Dalamud Release
+
+Commands and Open Main/Config reopen that error window. Refresh returns false
+without loading private code; access validation raises that explicit error before
+processing package bytes. Directory/Validate/Refresh IPC providers remain
+registered. The startup log records the captured track and diagnostic details;
+callbacks reuse the decision without checking again or logging every frame.
+Reloading the host makes one new check. Changing the running Dalamud branch
+requires restarting the game.
+
+Release eligibility does not replace signature, manifest, ABI or exact dependency
+checks. Delivering this guard requires a public-host update; private build and
+package processes are unaffected.
+Developer hosts that link this source retain their existing behavior through the
+existing `LOCAL_DEV_BUILD` compile flag.
+
+Run `dotnet run --project tests/ReleaseGuard/ReleaseGuard.csproj -c Release`
+for source-linked lifecycle tests with synthetic Dalamud/UI/package services.
+They cover host behavior, not protected packaging or live Dalamud/APM acceptance.
+Pass `-p:ReleaseGuardLocalDev=true` to check the shared developer-host path.
+
 ## Community
 
 - [Discord](https://discord.gg/ac6gjDvR8R): visit The Dumpster Fire channel for help and discussion.
