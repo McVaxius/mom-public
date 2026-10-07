@@ -170,9 +170,10 @@ internal sealed class ModuleLoader : IDisposable
                 var owner = GetLoadContext(assembly);
                 var trustedDirectory = locations.Any(location => string.Equals(directory, location.Directory, StringComparison.OrdinalIgnoreCase));
                 var trustedContext = locations.Any(location => string.Equals(directory, location.Directory, StringComparison.OrdinalIgnoreCase) && ReferenceEquals(owner, location.Context));
-                // Full identity remains mandatory, including version, culture and public-key token.
-                if (assembly.GetName().FullName == name.FullName && trustedContext) return assembly;
-                var reason = assembly.GetName().FullName != name.FullName ? "identity mismatch"
+                // Exact identity, except logged forward Dalamud revision compatibility.
+                var identityMatches = XA.Access.RuntimeDependencyPolicy.CanBind(name, assembly.GetName());
+                if (identityMatches && trustedContext) return AcceptRuntimeDependency(name, assembly);
+                var reason = !identityMatches ? "identity mismatch"
                     : !trustedDirectory ? "outside trusted directories" : "unexpected load context";
                 diagnostics.AppendLine().Append("Loaded candidate: ").Append(DescribeAssembly(assembly)).Append("; rejected: ").Append(reason);
             }
@@ -189,16 +190,16 @@ internal sealed class ModuleLoader : IDisposable
                 {
                     var identity = AssemblyName.GetAssemblyName(path);
                     diagnostics.Append("; available: ").Append(identity.FullName);
-                    if (identity.FullName != name.FullName)
+                    if (!XA.Access.RuntimeDependencyPolicy.CanBind(name, identity))
                     {
                         diagnostics.Append("; rejected: identity mismatch");
                         continue;
                     }
                     // Use the owner of the runtime/Dalamud directory, never a second default-context copy.
                     var resolved = location.Context.LoadFromAssemblyPath(path);
-                    if (resolved.GetName().FullName == name.FullName &&
+                    if (XA.Access.RuntimeDependencyPolicy.CanBind(name, resolved.GetName()) &&
                         ReferenceEquals(GetLoadContext(resolved), location.Context) &&
-                        string.Equals(Path.GetDirectoryName(resolved.Location), location.Directory, StringComparison.OrdinalIgnoreCase)) return resolved;
+                        string.Equals(Path.GetDirectoryName(resolved.Location), location.Directory, StringComparison.OrdinalIgnoreCase)) return AcceptRuntimeDependency(name, resolved);
                     diagnostics.Append("; rejected: returned assembly identity/origin/context differs: ").Append(DescribeAssembly(resolved));
                 }
                 catch (Exception error) when (error is IOException or BadImageFormatException or UnauthorizedAccessException)
@@ -208,6 +209,14 @@ internal sealed class ModuleLoader : IDisposable
             }
             diagnostics.AppendLine().Append("Use a private build matching the active Dalamud dependencies. Check the active Dalamud release channel before reporting this error.");
             throw new FileNotFoundException(diagnostics.ToString(), name.Name + ".dll");
+        }
+
+        private static Assembly AcceptRuntimeDependency(AssemblyName requested, Assembly resolved)
+        {
+            if (XA.Access.RuntimeDependencyPolicy.UsesRevisionTolerance(requested, resolved.GetName()))
+                Plugin.Log?.Information("[Access] Accepted newer Dalamud revision: requested {Requested}; resolved {Resolved}; location {Location}; context {Context}.",
+                    requested.FullName!, resolved.FullName!, resolved.Location, GetLoadContext(resolved)?.Name ?? "<unnamed>");
+            return resolved;
         }
 
         private static string DescribeAssembly(Assembly assembly) =>
