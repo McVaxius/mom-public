@@ -113,6 +113,9 @@ internal static class UiStyle
     }
     internal static bool NativeButton(string native, string visible, Vector2 size, bool primary = false, MaterialIcon icon = MaterialIcon.None)
     {
+        var toolbar = size.Y <= 0 && MaterialControls.Context != MaterialControlContext.Dense && ImGui.GetStyle().FramePadding.Y > 0;
+        using var height = toolbar ? MaterialText.PushLineHeight(visible) : default;
+        using var controls = toolbar ? MaterialControls.Push(MaterialControlContext.Toolbar) : default;
         var colors = MaterialTheme.Current.Colors;
         if (primary)
         {
@@ -122,19 +125,22 @@ internal static class UiStyle
         }
         // Keep the raw label's native ID, including buttons predating keyed localization.
         var iconWidth = icon == MaterialIcon.None ? 0 : ImGui.GetFontSize() * 1.7f;
-        size.X=MaterialLayout.FitNextItemWidth(size.X,MaterialText.Measure(visible).X+ImGui.GetStyle().FramePadding.X*2+iconWidth);
-        if (MaterialText.RequiresShaping(visible))
-            size.Y = Math.Max(size.Y, MaterialText.Measure(visible).Y + 2 * ImGui.GetStyle().FramePadding.Y);
+        var iconSize = icon == MaterialIcon.None ? 0 : ImGui.GetFontSize() * 1.3f;
+        var textSize = MaterialText.Measure(visible);
+        size.X=MaterialLayout.FitNextItemWidth(size.X,textSize.X+ImGui.GetStyle().FramePadding.X*2+iconWidth);
+        if (toolbar)
+            size.Y = MaterialControlMetrics.Measure(MaterialTheme.Metrics, Math.Max(ImGui.GetTextLineHeight(), Math.Max(textSize.Y, iconSize)), MaterialControlContext.Toolbar).Height;
+        else if (MaterialText.RequiresShaping(visible))
+            size.Y = Math.Max(size.Y, textSize.Y + 2 * ImGui.GetStyle().FramePadding.Y);
         ImGui.PushStyleColor(ImGuiCol.Text, Vector4.Zero);
         var pressed = ImGui.Button(native, size);
         ImGui.PopStyleColor();
         if (primary) ImGui.PopStyleColor(3);
         var min = ImGui.GetItemRectMin(); var max = ImGui.GetItemRectMax();
-        var textSize = MaterialText.Measure(visible);
         var position = min + new Vector2((max.X - min.X - textSize.X - iconWidth) * .5f, (max.Y - min.Y - textSize.Y) * .5f);
         var ink = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
         if (ImGui.GetStyle().Alpha < 1) ink.W *= ImGui.GetStyle().Alpha;
-        if (icon != MaterialIcon.None) MaterialIcons.Draw(icon, position, ImGui.GetFontSize() * 1.3f, ink);
+        if (icon != MaterialIcon.None) MaterialIcons.Draw(icon, toolbar ? new Vector2(position.X, min.Y + (max.Y - min.Y - iconSize) * .5f) : position, iconSize, ink);
         MaterialText.AddText(ImGui.GetWindowDrawList(), ImGui.GetFont(), ImGui.GetFontSize(), position + new Vector2(iconWidth, 0), ImGui.ColorConvertFloat4ToU32(ink), visible);
         return pressed;
     }

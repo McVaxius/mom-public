@@ -124,7 +124,7 @@ internal sealed class IntroductionWindow : Window
             ui.Paragraph("InstallAccess");
             ImGui.Spacing();
             using (ui.Font(ImGui.GetContentRegionAvail().X < 300 * scale ? UiFontRole.Caption : UiFontRole.Action))
-                if (UiStyle.NativeButton("Refresh access", ui.T("Refresh access"), new(-1, (ui.Compact ? 48 : 76) * scale), true, MaterialIcon.Refresh)) refresh();
+                if (UiStyle.NativeButton("Refresh access", ui.T("Refresh access"), new(-1, 0), true, MaterialIcon.Refresh)) refresh();
             ui.Paragraph("RefreshExplanation");
             if (loader.Failed)
             {
