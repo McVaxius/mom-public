@@ -14,21 +14,30 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] public static IPluginLog Log { get; private set; } = null!;
     [PluginService] public static ITextureProvider Textures { get; private set; } = null!;
     private readonly WindowSystem windows = new("mom.Information");
+    private const string ReleaseRequiredMessage = "You are not on Dalamud Release";
     private readonly ModuleLoader loader = new();
-    private readonly PublicUi presentation;
-    private readonly IntroductionWindow introduction;
+    private readonly ReleaseDecision release;
+    private readonly Window publicWindow;
+    private readonly PublicUi? presentation;
+    private readonly IntroductionWindow? introduction;
     private readonly List<Action> cleanup = [];
     private int disposed;
     private bool IsDisposed => System.Threading.Volatile.Read(ref disposed) != 0;
 
     public Plugin()
     {
-        presentation = new PublicUi(PluginInterface, Textures);
+        release = ReleaseDecision.Capture(PluginInterface);
         try
         {
-            introduction = new IntroductionWindow(PluginInterface, Textures, loader, RefreshAccess, presentation);
+            if (release.Allowed)
+            {
+                presentation = new PublicUi(PluginInterface, Textures);
+                introduction = new IntroductionWindow(PluginInterface, Textures, loader, RefreshAccess, presentation);
+                publicWindow = introduction;
+            }
+            else publicWindow = new ReleaseRequiredWindow();
             cleanup.Add(windows.RemoveAllWindows);
-            windows.AddWindow(introduction);
+            windows.AddWindow(publicWindow);
             if (!CommandManager.AddHandler("/mom", new CommandInfo(OnCommand) { HelpMessage = "Open MOM. Access modules provide additional commands." }))
                 throw new InvalidOperationException("The /mom command is already registered.");
             cleanup.Add(() => CommandManager.RemoveHandler("/mom"));
@@ -46,14 +55,22 @@ public sealed class Plugin : IDalamudPlugin
             validate.RegisterFunc(ValidateAccess);
             var refresh = PluginInterface.GetIpcProvider<bool>("mom.Access.Refresh.v1");
             cleanup.Add(refresh.UnregisterFunc);
-            refresh.RegisterFunc(() => { RefreshAccess(); return loader.Module != null && !loader.Failed; });
+            refresh.RegisterFunc(() => { RefreshAccess(); return release.Allowed && loader.Module != null && !loader.Failed; });
+            if (!release.Allowed)
+            {
+                ReportReleaseDenial();
+                publicWindow.IsOpen = true;
+                return;
+            }
             loader.Load(PluginInterface);
         }
         catch { Dispose(); throw; }
     }
 
-    private static bool ValidateAccess(byte[] bytes)
+    private bool ValidateAccess(byte[] bytes)
     {
+        // Keep branch rejection outside the package-error catch so APM receives the explicit reason.
+        if (!release.Allowed) throw new InvalidOperationException(ReleaseRequiredMessage);
         try
         {
             var plaintext = ModulePackage.VerifyAndDecrypt(bytes, TrustAnchor.PublicKey, Version.Parse(BuildInfo.Version));
@@ -62,14 +79,21 @@ public sealed class Plugin : IDalamudPlugin
         }
         catch { return false; }
     }
-    private void RefreshAccess() { if (IsDisposed) return; loader.Load(PluginInterface); if (loader.Module is { } module) { introduction.IsOpen = false; module.OpenMainWindow(); } }
-    private void Open() { if (IsDisposed) return; if (loader.Module is { } module) module.OpenMainWindow(); else introduction.IsOpen = true; }
-    private void OpenConfig() { if (IsDisposed) return; if (loader.Module is { } module) module.OnCommand("/mom", "config"); else introduction.IsOpen = true; }
-    private void OnCommand(string command, string arguments) { if (IsDisposed) return; if (loader.Module is { } module) module.OnCommand(command, arguments); else introduction.IsOpen = true; }
+    private void RefreshAccess()
+    {
+        if (IsDisposed) return;
+        if (!release.Allowed) { publicWindow.IsOpen = true; return; }
+        loader.Load(PluginInterface);
+        if (release.Allowed && loader.Module is { } module) { publicWindow.IsOpen = false; module.OpenMainWindow(); }
+    }
+    private void Open() { if (IsDisposed) return; if (release.Allowed && loader.Module is { } module) module.OpenMainWindow(); else publicWindow.IsOpen = true; }
+    private void OpenConfig() { if (IsDisposed) return; if (release.Allowed && loader.Module is { } module) module.OnCommand("/mom", "config"); else publicWindow.IsOpen = true; }
+    private void OnCommand(string command, string arguments) { if (IsDisposed) return; if (release.Allowed && loader.Module is { } module) module.OnCommand(command, arguments); else publicWindow.IsOpen = true; }
     private void Draw()
     {
         if (IsDisposed) return;
-        if (introduction.IsOpen) presentation.Draw(windows.Draw, error => Log.Error(error, "[mom] Public UI font coverage failed."));
+        if (!release.Allowed) { windows.Draw(); return; }
+        if (publicWindow.IsOpen) presentation!.Draw(windows.Draw, error => Log.Error(error, "[mom] Public UI font coverage failed."));
         loader.Module?.Draw();
     }
     public void Dispose()
@@ -78,7 +102,45 @@ public sealed class Plugin : IDalamudPlugin
         for (var index = cleanup.Count - 1; index >= 0; --index) Cleanup(cleanup[index]);
         cleanup.Clear();
         Cleanup(loader.Dispose);
-        Cleanup(presentation.Dispose);
+        if (presentation != null) Cleanup(presentation.Dispose);
+    }
+
+    private void ReportReleaseDenial()
+    {
+        try { Log?.Error("[Access] {Reason}. Track: {Track}. {Detail}", ReleaseRequiredMessage, release.Track, release.Detail); }
+        catch { /* A logging failure must not prevent the error shell from opening. */ }
+    }
+
+    private sealed record ReleaseDecision(bool Allowed, string Track, string Detail)
+    {
+        internal static ReleaseDecision Capture(IDalamudPluginInterface pluginInterface)
+        {
+            try
+            {
+                var info = pluginInterface.GetDalamudVersion();
+                var track = info.BetaTrack?.Trim();
+                var allowed = string.Equals(track, "release", StringComparison.OrdinalIgnoreCase);
+                var detail = $"Dalamud version: {info.Version}; ClientStructs Git hash: {info.GitHashClientStructs ?? "<unknown>"}.";
+                if (string.IsNullOrWhiteSpace(track))
+                    detail = "The runtime branch was not reported; release could not be confirmed. " + detail;
+                return new ReleaseDecision(allowed, string.IsNullOrWhiteSpace(track) ? "<unknown>" : track, detail);
+            }
+            catch (Exception error)
+            {
+                return new ReleaseDecision(false, "<unknown>", $"Branch check failed: {error.GetType().Name}: {error.Message}");
+            }
+        }
+    }
+
+    private sealed class ReleaseRequiredWindow : Window
+    {
+        public ReleaseRequiredWindow() : base("MOM##DalamudReleaseRequired")
+        {
+            Size = new System.Numerics.Vector2(420, 100);
+            SizeCondition = Dalamud.Bindings.ImGui.ImGuiCond.Appearing;
+        }
+
+        public override void Draw() => Dalamud.Bindings.ImGui.ImGui.TextUnformatted(ReleaseRequiredMessage);
     }
 
     private static void Cleanup(Action action)
