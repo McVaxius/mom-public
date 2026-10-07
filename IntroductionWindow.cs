@@ -1,6 +1,7 @@
 using System.Numerics;
 using AethertekUI;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
@@ -13,7 +14,7 @@ internal sealed class IntroductionWindow : Window
 {
     private readonly AethertekUI.Dalamud.MaterialWindowMotion motion = new();
     private readonly MaterialWindowOpacity windowOpacity = new();
-    private const string DiscordUrl = "https://discord.gg/VsXqydsvpu";
+    private const string DiscordUrl = "https://discord.gg/ac6gjDvR8R";
     private const string SupportUrl = "https://ko-fi.com/mcvaxius";
     private readonly ISharedImmediateTexture icon;
     private readonly ModuleLoader loader;
@@ -27,6 +28,24 @@ internal sealed class IntroductionWindow : Window
         SizeCondition = ImGuiCond.FirstUseEver;
         SizeConstraints = new WindowSizeConstraints { MinimumSize = new Vector2(360, 380), MaximumSize = new Vector2(float.MaxValue) };
         icon = textures.GetFromFile(Path.Combine(pi.AssemblyLocation.DirectoryName!, "icon.png"));
+        TitleBarButtons.Add(new()
+        {
+            Icon = FontAwesomeIcon.Cog, Priority = 0, IconOffset = new(2, 1),
+            Click = button =>
+            {
+                if (button != ImGuiMouseButton.Left) return;
+                ui.RequestAppearance();
+                ImGui.SetWindowCollapsed(WindowName, false);
+            },
+            ShowTooltip = () => MaterialText.SetTooltip(ui.T("Window appearance")),
+        });
+        TitleBarButtons.Add(new()
+        {
+            Icon = FontAwesomeIcon.Sync, Priority = -10, IconOffset = new(2, 1),
+            Click = button => { if (button == ImGuiMouseButton.Left) refresh(); },
+            ShowTooltip = () => MaterialText.SetTooltip(ui.T("Refresh access") + "\n"
+                + ui.T(loader.Failed ? "Access needs attention" : loader.Module != null ? "Active" : "No access module installed")),
+        });
     }
     public override void PreDraw() => motion.Prepare(this, reducedMotion: false, roundedCorners: true);
     public override void PostDraw()
@@ -39,7 +58,7 @@ internal sealed class IntroductionWindow : Window
     {
         motion.DrawChrome();
         var narrow = ImGui.GetWindowSize().X < 620 * ImGui.GetIO().FontGlobalScale;
-        using var scale = new UiStyle.TextScale((ui.Compact ? narrow ? 14 : 14.4f : narrow ? 15 : 24) / 11);
+        using var scale = ui.WindowBody(narrow);
         DrawContent();
     }
     private void DrawContent()

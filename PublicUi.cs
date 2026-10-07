@@ -27,9 +27,10 @@ internal sealed class PublicUi : IDisposable
     private Vector3 accentDraft;
     private bool frameCompact;
     private bool loggedFontIssue;
+    private bool appearanceRequested;
     internal PublicUi(IDalamudPluginInterface pi, ITextureProvider textures)
     {
-        preferences = new(pi); shapedText = new(textures); fonts = new(pi.UiBuilder, "MOM public interface", shapedText.Renderer);
+        preferences = new(pi); shapedText = new(textures); fonts = new(pi.UiBuilder, "MOM public interface", shapedText.Renderer, publicHost: true);
         foreach (var language in Languages)
         {
             var stream = typeof(PublicUi).Assembly.GetManifestResourceStream("mom.PublicShell.Strings." + language.Code + ".resources")
@@ -43,15 +44,18 @@ internal sealed class PublicUi : IDisposable
     }
     internal string T(string key) => current.GetString(key) ?? throw new MissingManifestResourceException(key);
     internal IDisposable Font(UiFontRole role) => fonts.Push(role);
+    internal IDisposable WindowBody(bool narrow)
+        => fonts.PushWindowBody(!narrow, (frameCompact ? narrow ? 14 : 14.4f : narrow ? 15 : 24) / 11);
     internal bool Compact => frameCompact;
+    internal void RequestAppearance() => appearanceRequested = true;
     internal void Draw(Action draw, Action<Exception> report)
     {
         using var shaping = shapedText.Push();
         preferences.Reload();
         var language = sets.ContainsKey(preferences.Language) ? preferences.Language : "en";
         current = sets[language];
-        fonts.Prepare(language, current.Cast<DictionaryEntry>().Select(e => (string)e.Value!).Concat(Languages.Select(l => l.Name)));
         UiStyle.Compact = frameCompact = preferences.Compact;
+        fonts.PrepareForDensity(language, current.Cast<DictionaryEntry>().Select(e => (string)e.Value!).Concat(Languages.Select(l => l.Name)), frameCompact);
         var selected = preferences.Accent & 0xFFFFFF;
         if (theme == null || accent != selected) { accent = selected; theme = UiStyle.Theme(selected, true); }
         theme.Density = frameCompact ? MaterialDensity.Compact : MaterialDensity.Standard;
@@ -105,6 +109,11 @@ internal sealed class PublicUi : IDisposable
         if (MaterialButton.IconButton("window-settings", MaterialIcon.Settings))
             ImGui.OpenPopup("mom-public-window-appearance");
         if (ImGui.IsItemHovered()) MaterialText.SetTooltip(T("Window appearance"));
+        if (appearanceRequested)
+        {
+            appearanceRequested = false;
+            ImGui.OpenPopup("mom-public-window-appearance");
+        }
         ImGui.SetNextWindowSize(new Vector2(0, 0), ImGuiCond.Appearing);
         if (!ImGui.BeginPopup("mom-public-window-appearance")) return;
         MaterialText.Text(T("Window appearance")); ImGui.Separator();

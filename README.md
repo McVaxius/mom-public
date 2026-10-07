@@ -8,7 +8,7 @@ The introduction has regular and compact layouts, an optional fifteen-language p
 
 ## Community
 
-- [Discord](https://discord.gg/VsXqydsvpu): visit The Dumpster Fire channel for help and discussion.
+- [Discord](https://discord.gg/ac6gjDvR8R): visit The Dumpster Fire channel for help and discussion.
 - [Ko-fi](https://ko-fi.com/mcvaxius): support the project. Support does not automatically grant access.
 
 ## Install an access update
