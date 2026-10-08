@@ -55,7 +55,8 @@ internal sealed class PublicUi : IDisposable
         var language = sets.ContainsKey(preferences.Language) ? preferences.Language : "en";
         current = sets[language];
         UiStyle.Compact = frameCompact = preferences.Compact;
-        fonts.PrepareForDensity(language, current.Cast<DictionaryEntry>().Select(e => (string)e.Value!).Concat(Languages.Select(l => l.Name)), frameCompact);
+        fonts.PrepareForDensity(language, current.Cast<DictionaryEntry>().Select(e => (string)e.Value!)
+            .Concat(Languages.Where(l => l.Code != "hi").Select(l => l.Name)), frameCompact);
         var selected = preferences.Accent & 0xFFFFFF;
         if (theme == null || accent != selected) { accent = selected; theme = UiStyle.Theme(selected, true); }
         theme.Density = frameCompact ? MaterialDensity.Compact : MaterialDensity.Standard;
@@ -64,8 +65,11 @@ internal sealed class PublicUi : IDisposable
         if (!fonts.Ready())
         {
             if (!loggedFontIssue && fonts.Error is { } error) { report(error); loggedFontIssue = true; }
-            ManagedUiFonts.DrawStatus(T(fonts.Error == null
-                ? "Preparing MOM interface fonts..." : "MOM interface fonts are unavailable. See the Dalamud log."));
+            var hindiFailed = language == "hi" && fonts.Error is not null;
+            ManagedUiFonts.DrawStatusWithRecovery(language == "hi"
+                ? hindiFailed ? "Hindi is unavailable. Use English to recover; your saved language is unchanged." : "Preparing MOM interface fonts..."
+                : T(fonts.Error == null ? "Preparing MOM interface fonts..." : "MOM interface fonts are unavailable. See the Dalamud log."),
+                hindiFailed ? () => { preferences.Language = "en"; preferences.Save(); } : null);
             ApplyWindowOpacity(fontStatusOpacity, "MOM##FontStatus"); return;
         }
         using var geometry = UiStyle.Geometry(ImGui.GetIO().FontGlobalScale, true);
@@ -88,7 +92,8 @@ internal sealed class PublicUi : IDisposable
         var language = sets.ContainsKey(preferences.Language) ? preferences.Language : "en";
         using var action = Font(ImGui.GetWindowSize().X < 620 * MaterialTheme.Metrics.Scale ? UiFontRole.Caption : UiFontRole.Action);
         using var controls = MaterialControls.Push();
-        var options = new MaterialOptions<string>(Languages.Select(l => new MaterialOption<string>(l.Code, l.Code, l.Name)).ToArray());
+        var options = new MaterialOptions<string>(Languages.Select(l => new MaterialOption<string>(l.Code, l.Code,
+            l.Code == "hi" && !fonts.HindiAvailable ? "Hindi (unavailable)" : l.Name, l.Code == "hi" && !fonts.HindiAvailable)).ToArray());
         if (preferences.UiLanguageVisibleOnMainWindow)
         {
             var languageChanged = MaterialAppearanceSelector.DrawLanguage("mom-public-appearance", ref language, options, frameCompact ? 130 : 220);

@@ -28,6 +28,7 @@ internal sealed class ManagedUiFonts : IDisposable
     private int generation;
     private int checkedGeneration = -1;
     private Exception? glyphError;
+    internal bool HindiAvailable { get; private set; }
     internal ManagedUiFonts(IUiBuilder builder, string label, MaterialTextRenderer shapedText, bool publicHost = false)
     { this.shapedText = shapedText; this.publicHost = publicHost; atlas = builder.CreateFontAtlas(FontAtlasAutoRebuildMode.Async, true, label); }
     internal Exception? Error => glyphError ?? handles.Concat(bodyHandles).FirstOrDefault(h => h.LoadException != null)?.LoadException;
@@ -39,11 +40,12 @@ internal sealed class ManagedUiFonts : IDisposable
         using var suppress = atlas.SuppressAutoRebuild();
         foreach (var handle in handles.Concat(bodyHandles)) { handle.ImFontChanged -= Changed; handle.Dispose(); }
         language = selected; compact = selectedCompact;
-        required = strings.Concat(["English", "Deutsch", "Français", "Español", "Italiano", "Русский", "日本語", "한국어", "简体中文", "繁體中文", "Português (Brasil)", "Tiếng Việt", "Bahasa Indonesia", "Polski", "Türkçe", "हिन्दी", "♡", "—", "…"]).Distinct().ToArray();
+        required = strings.Concat(["English", "Deutsch", "Français", "Español", "Italiano", "Русский", "日本語", "한국어", "简体中文", "繁體中文", "Português (Brasil)", "Tiếng Việt", "Bahasa Indonesia", "Polski", "Türkçe", "Hindi (unavailable)", "♡", "—", "…"]).Distinct().ToArray();
         var ranges = required.Select(MaterialText.NativeGlyphText).SelectMany(text => text).Where(c => !char.IsControl(c))
             .Concat(Enumerable.Range(0x20, 0x250 - 0x20).Select(i => (char)i))
             .Concat(Enumerable.Range(0x400, 0x130).Select(i => (char)i)).ToGlyphRange();
         glyphError = null; checkedGeneration = -1;
+        HindiAvailable = false;
         IFontHandle Create(float size, string file) => atlas.NewDelegateFontHandle(step => step.OnPreBuild(build =>
         {
             build.NewImAtlas.TexDesiredWidth = 4096;
@@ -77,6 +79,7 @@ internal sealed class ManagedUiFonts : IDisposable
         {
             var allHandles = handles.Concat(bodyHandles).ToArray();
             var sizes = UiStyle.FontSizes.Select(size => size * 4 / 3).Concat(BodySizes()).ToArray();
+            HindiAvailable = sizes.All(size => shapedText.TryCheckGlyphs(["हिन्दी"], size * ImGui.GetIO().FontGlobalScale, out _));
             for (var index = 0; index < allHandles.Length; index++)
             {
                 shapedText.CheckGlyphs(required, sizes[index] * ImGui.GetIO().FontGlobalScale);
@@ -128,7 +131,8 @@ internal sealed class ManagedUiFonts : IDisposable
             owner.activeBody = body; owner.bodyMultiplier = multiplier; owner.usingBodyFont = wasBody;
         }
     }
-    internal static void DrawStatus(string message)
+    internal static void DrawStatus(string message) => DrawStatusWithRecovery(message, null);
+    internal static void DrawStatusWithRecovery(string message, Action? useEnglish, bool showEnglishRecovery = false)
     {
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(450 * ImGui.GetIO().FontGlobalScale, 0));
         statusMotion.PreDraw("MOM##FontStatus", null, null, reducedMotion: false, prepareDecorations: statusDecorations.Prepare);
@@ -136,6 +140,12 @@ internal sealed class ManagedUiFonts : IDisposable
         {
             statusDecorations.Paint();
             MaterialText.TextWrapped(message);
+            if (showEnglishRecovery || useEnglish is not null)
+            {
+                ImGui.BeginDisabled(useEnglish is null);
+                try { if (ImGui.Button("Use English")) useEnglish?.Invoke(); }
+                finally { ImGui.EndDisabled(); }
+            }
         }
         ImGui.End();
         statusDecorations.Paint();

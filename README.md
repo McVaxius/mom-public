@@ -4,7 +4,14 @@ MOM is a free public plugin by DhogGPT. Additional functionality is available th
 
 Open `/mom` for information, community links, and access status. The public plugin remains installed when an access package is added or updated.
 
-The introduction has regular and compact layouts, an optional fifteen-language picker and `C` checkbox, a transparency switch, and Window appearance settings. Settings retain colour, compact and language access when main controls are hidden. Opacity defaults to 100%, with automatic fade to 50% after ten seconds without window focus; normal/faded opacity and delay save through the existing shared configuration. Available languages include Vietnamese, Brazilian Portuguese, Indonesian, Polish, Turkish and Hindi. Preferences update the complete theme and preserve private fields in the shared configuration. Managed Segoe, symbol and selected CJK fonts wait for verified glyph coverage before drawing; Hindi uses Windows-shaped Nirmala UI text. Font loading and error messages use the selected language. Community support and privately granted access remain separate; **Refresh access** checks and loads an existing module through the host's original loader.
+The packaged icon supplies Main branding and its expanded/collapsed title image.
+Its full image space remains reserved while the host loads the texture. The
+titlebar retains Window appearance and Refresh access actions; refreshing loads
+an installed authenticated module through the existing access checks. The public
+host does not configure the module's PvP route, job, run count or combat policy.
+Image changes still require game/GPU acceptance.
+
+The introduction has regular and compact layouts, an optional language picker and `C` checkbox, a transparency switch, and Window appearance settings. Settings retain colour, compact and language access when main controls are hidden. Opacity defaults to 100%, with automatic fade to 50% after ten seconds without window focus; normal/faded opacity and delay save through the existing shared configuration. Available languages include Vietnamese, Brazilian Portuguese, Indonesian, Polish, Turkish and Hindi. Preferences update the complete theme and preserve private fields in the shared configuration. Managed Segoe, symbol and selected CJK fonts wait for verified glyph coverage before drawing; Hindi uses native Windows font fallback. An unavailable Hindi menu caption becomes a disabled **Hindi (unavailable)** choice without blocking other languages. A saved Hindi selection with failed coverage shows an ASCII status and **Use English** through existing preference saving; the saved language changes only on that action. The public Release build passes; native/game acceptance of font recovery remains pending. Community support and privately granted access remain separate; **Refresh access** checks and loads an existing module through the host's original loader.
 
 ## Dalamud Release requirement
 

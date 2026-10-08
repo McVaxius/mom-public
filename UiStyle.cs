@@ -1,6 +1,8 @@
 using System.Numerics;
 using AethertekUI;
 using Dalamud.Bindings.ImGui;
+using Dalamud.Interface.Textures;
+using Dalamud.Interface.Windowing;
 
 #if MOM_PRIVATE_UI
 namespace mom.PrivateUi;
@@ -14,6 +16,37 @@ internal static class UiStyle
 {
     internal static readonly float[] FontSizes = [11, 12, 24, 10, 9, 13, 11];
     internal static readonly string[] FontFiles = ["segoeui.ttf", "seguisb.ttf", "segoeuib.ttf", "segoeui.ttf", "segoeui.ttf", "seguisb.ttf", "seguisb.ttf"];
+    internal static void ReserveImageTitleSpace(Window owner, string visibleTitle)
+    {
+        var style = ImGui.GetStyle();
+        var fontSize = ImGui.GetFontSize();
+        var collapse = (owner.Flags & (ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.Modal)) == 0
+            && style.WindowMenuButtonPosition != ImGuiDir.None;
+        var controls = AdditionalTitleButtonWidth(owner, fontSize)
+            + ((owner.ShowCloseButton ? 1 : 0) + (collapse ? 1 : 0)) * (fontSize + style.ItemInnerSpacing.X);
+        var required = (MaterialText.Measure(visibleTitle).X + controls + style.FramePadding.X * 2
+            + fontSize + style.ItemInnerSpacing.X * 2) / ImGui.GetIO().FontGlobalScale;
+        var bounds = owner.SizeConstraints ?? new WindowSizeConstraints();
+        bounds.MinimumSize = new(Math.Max(bounds.MinimumSize.X, required), bounds.MinimumSize.Y);
+        owner.SizeConstraints = bounds;
+    }
+    internal static void PaintTitleImage(Window owner, string visibleTitle, ISharedImmediateTexture icon)
+    {
+        var native = ImGuiP.FindWindowByName(owner.WindowName);
+        if (native.IsNull) return;
+        ImTextureID image = default;
+        var imageSize = Vector2.One;
+        if (icon.TryGetWrap(out var texture, out _))
+        { image = texture.Handle; imageSize = new(texture.Width, texture.Height); }
+        MaterialWindowHeader.PaintTitle(native, visibleTitle, image, imageSize,
+            AdditionalTitleButtonWidth(owner, ImGuiP.CalcFontSize(native)), owner.ShowCloseButton);
+    }
+    private static float AdditionalTitleButtonWidth(Window owner, float fontSize)
+    {
+        var count = owner.TitleBarButtons.Count(button => !owner.IsClickthrough || button.AvailableClickthrough);
+        if (owner.AllowPinning || owner.AllowClickthrough || owner.AllowBackgroundBlur) count++;
+        return count * (fontSize + ImGui.GetStyle().ItemInnerSpacing.X);
+    }
     internal readonly ref struct TextScale
     {
         private readonly float previous;
@@ -185,11 +218,15 @@ internal static class UiStyle
     }
 
     internal static bool NativeCombo(string native, ref int selected, string[] options, int count)
+        => NativeComboWithAvailability(native, ref selected, options, count, null, null);
+
+    internal static bool NativeComboWithAvailability(string native, ref int selected, string[] options, int count, string[]? displays, bool[]? disabled)
     {
-        if (!options.Take(count).Any(MaterialText.RequiresShaping)) return ImGui.Combo(native, ref selected, options, count);
+        if (displays is null && disabled is null && !options.Take(count).Any(MaterialText.RequiresShaping))
+            return ImGui.Combo(native, ref selected, options, count);
         var changed = false;
         var id = ImGui.GetID(native);
-        if (MaterialText.BeginCombo(native, selected >= 0 && selected < count ? options[selected] : ""))
+        if (MaterialText.BeginCombo(native, selected >= 0 && selected < count ? displays?[selected] ?? options[selected] : ""))
         {
             try
             {
@@ -199,7 +236,13 @@ internal static class UiStyle
                     try
                     {
                         var active = index == selected;
-                        if (MaterialText.Selectable(options[index], active)) { selected = index; changed = true; }
+                        ImGui.BeginDisabled(disabled?[index] ?? false);
+                        try
+                        {
+                            if (MaterialText.Selectable(options[index], active, display: displays?[index]))
+                            { selected = index; changed = true; }
+                        }
+                        finally { ImGui.EndDisabled(); }
                         if (active) ImGui.SetItemDefaultFocus();
                     }
                     finally { ImGui.PopID(); }

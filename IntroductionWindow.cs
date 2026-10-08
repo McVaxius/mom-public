@@ -47,10 +47,15 @@ internal sealed class IntroductionWindow : Window
                 + ui.T(loader.Failed ? "Access needs attention" : loader.Module != null ? "Active" : "No access module installed")),
         });
     }
-    public override void PreDraw() => motion.Prepare(this, reducedMotion: false, roundedCorners: true);
+    public override void PreDraw()
+    {
+        UiStyle.ReserveImageTitleSpace(this, $"MOM v{BuildInfo.Version}");
+        motion.Prepare(this, reducedMotion: false, roundedCorners: true);
+    }
     public override void PostDraw()
     {
         motion.Restore(this);
+        UiStyle.PaintTitleImage(this, $"MOM v{BuildInfo.Version}", icon);
         ui.ApplyWindowOpacity(windowOpacity, WindowName);
     }
 
@@ -66,7 +71,11 @@ internal sealed class IntroductionWindow : Window
         var scale = ImGui.GetIO().FontGlobalScale;
         var root = ImGui.GetID("");
         ImGui.BeginGroup();
-        if (icon.TryGetWrap(out var texture, out _)) { ImGui.Image(texture.Handle, new Vector2(ui.Compact ? 32 : 44) * scale); ImGui.SameLine(); }
+        var iconMin = ImGui.GetCursorScreenPos();
+        var iconSize = new Vector2(ui.Compact ? 32 : 44) * scale;
+        if (icon.TryGetWrap(out var texture, out _))
+            MaterialCanvas.DrawImage(ImGui.GetWindowDrawList(), texture.Handle, new(texture.Width, texture.Height), iconMin, iconMin + iconSize);
+        ImGui.Dummy(iconSize); ImGui.SameLine();
         using (ui.Font(UiFontRole.Title))
         {
             using var titleScale = new UiStyle.TextScale(42f * 11 / (24 * 18));
