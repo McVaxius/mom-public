@@ -106,10 +106,13 @@ internal sealed class PublicUi : IDisposable
             if (UiStyle.NativeCheckbox("C##mom-public-compact", ref compact)) { preferences.Compact = compact; preferences.Save(); }
             if (ImGui.IsItemHovered()) MaterialText.SetTooltip(T("Compact mode"));
         }
-        SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + MaterialText.Measure(T("Transparency")).X);
-        var enabled = preferences.UiTransparencyEnabled;
-        if (UiStyle.NativeCheckbox(T("Transparency") + "###window-transparency-main", ref enabled))
-        { preferences.UiTransparencyEnabled = enabled; preferences.Save(); }
+        if (preferences.UiTransparencyVisibleOnMainWindow)
+        {
+            SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + MaterialText.Measure(T("Transparency")).X);
+            var enabled = preferences.UiTransparencyEnabled;
+            if (UiStyle.NativeCheckbox(T("Transparency") + "###window-transparency-main", ref enabled))
+            { preferences.UiTransparencyEnabled = enabled; preferences.Save(); }
+        }
         SameLineIfFits(MaterialControls.Metrics.Height);
         if (MaterialButton.IconButton("window-settings", MaterialIcon.Settings))
             ImGui.OpenPopup("mom-public-window-appearance");
@@ -143,6 +146,9 @@ internal sealed class PublicUi : IDisposable
         var compactVisible = preferences.UiCompactVisibleOnMainWindow;
         if (UiStyle.NativeCheckbox(T("Compact visible on main window") + "###window-compact-visible", ref compactVisible))
         { preferences.UiCompactVisibleOnMainWindow = compactVisible; changed = true; }
+        var transparencyVisible = preferences.UiTransparencyVisibleOnMainWindow;
+        if (UiStyle.NativeCheckbox(T("Transparency visible on main window") + "###window-transparency-visible", ref transparencyVisible))
+        { preferences.UiTransparencyVisibleOnMainWindow = transparencyVisible; changed = true; }
         var languageVisible = preferences.UiLanguageVisibleOnMainWindow;
         if (UiStyle.NativeCheckbox(T("Language visible on main window") + "###window-language-visible", ref languageVisible))
         { preferences.UiLanguageVisibleOnMainWindow = languageVisible; changed = true; }

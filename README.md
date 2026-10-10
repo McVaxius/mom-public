@@ -1,5 +1,7 @@
 # MOM
 
+Compact mode is enabled once on upgrade. Main Compact and Transparency shortcuts start hidden; Window appearance can restore either shortcut independently and change density or opacity. Later loads retain those choices and unrelated settings.
+
 MOM is a free public plugin by DhogGPT. Additional functionality is available through privately granted access.
 
 Open `/mom` for information, community links, and access status. The public plugin remains installed when an access package is added or updated.

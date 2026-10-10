@@ -9,9 +9,11 @@ internal sealed class PublicPreferences
     private readonly string path;
     private DateTime observedWrite = DateTime.MinValue;
     internal uint Accent { get; set; } = 0xA475FF;
-    internal bool Compact { get; set; }
+    internal bool Compact { get; set; } = true;
     internal string Language { get; set; } = "en";
-    internal bool UiCompactVisibleOnMainWindow { get; set; } = true;
+    internal bool UiCompactVisibleOnMainWindow { get; set; }
+    internal bool UiTransparencyVisibleOnMainWindow { get; set; }
+    private bool loaded;
     internal bool UiLanguageVisibleOnMainWindow { get; set; } = true;
     internal bool UiTransparencyEnabled { get; set; } = true;
     private int uiWindowOpacityPercent = 100;
@@ -26,12 +28,13 @@ internal sealed class PublicPreferences
     internal void Reload()
     {
         var written = File.Exists(path) ? File.GetLastWriteTimeUtc(path) : DateTime.MinValue;
-        if (written == observedWrite) return;
+        if (loaded && written == observedWrite) return;
         var root = Read();
         Accent = root["UiAccentRgb"]?.GetValue<uint>() ?? 0xA475FF;
-        Compact = root["UiCompact"]?.GetValue<bool>() ?? false;
+        Compact = root["UiCompact"]?.GetValue<bool>() ?? true;
         Language = root["PublicUiLanguage"]?.GetValue<string>() ?? "en";
-        UiCompactVisibleOnMainWindow = root["UiCompactVisibleOnMainWindow"]?.GetValue<bool>() ?? true;
+        UiCompactVisibleOnMainWindow = root["UiCompactVisibleOnMainWindow"]?.GetValue<bool>() ?? false;
+        UiTransparencyVisibleOnMainWindow = root["UiTransparencyVisibleOnMainWindow"]?.GetValue<bool>() ?? false;
         UiLanguageVisibleOnMainWindow = root["UiLanguageVisibleOnMainWindow"]?.GetValue<bool>() ?? true;
         UiTransparencyEnabled = root["UiTransparencyEnabled"]?.GetValue<bool>() ?? true;
         UiWindowOpacityPercent = root["UiWindowOpacityPercent"]?.GetValue<int>() ?? 100;
@@ -39,6 +42,9 @@ internal sealed class PublicPreferences
         UiFadedOpacityPercent = root["UiFadedOpacityPercent"]?.GetValue<int>() ?? 50;
         UiUnfocusedDelaySeconds = root["UiUnfocusedDelaySeconds"]?.GetValue<int>() ?? 10;
         observedWrite = written;
+        loaded = true;
+        if (root["UiCompactDefaultsApplied"]?.GetValue<bool>() != true)
+        { Compact = true; UiCompactVisibleOnMainWindow = UiTransparencyVisibleOnMainWindow = false; Save(); }
     }
     private JsonObject Read() => File.Exists(path)
         ? JsonNode.Parse(File.ReadAllText(path)) as JsonObject ?? throw new InvalidDataException("MOM configuration must be an object.")
@@ -48,6 +54,8 @@ internal sealed class PublicPreferences
         var root = Read();
         root["UiAccentRgb"] = Accent; root["UiCompact"] = Compact; root["PublicUiLanguage"] = Language;
         root["UiCompactVisibleOnMainWindow"] = UiCompactVisibleOnMainWindow;
+        root["UiTransparencyVisibleOnMainWindow"] = UiTransparencyVisibleOnMainWindow;
+        root["UiCompactDefaultsApplied"] = true;
         root["UiLanguageVisibleOnMainWindow"] = UiLanguageVisibleOnMainWindow;
         root["UiTransparencyEnabled"] = UiTransparencyEnabled;
         root["UiWindowOpacityPercent"] = UiWindowOpacityPercent;
