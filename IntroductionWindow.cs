@@ -12,6 +12,8 @@ namespace mom.PublicShell;
 
 internal sealed class IntroductionWindow : Window
 {
+    private readonly AethertekUI.Dalamud.MaterialSupportLog supportLog = new();
+    private readonly IDalamudPluginInterface supportPluginInterface;
     private readonly AethertekUI.Dalamud.MaterialWindowMotion motion = new();
     private readonly MaterialWindowOpacity windowOpacity = new();
     private const string DiscordUrl = "https://discord.gg/ac6gjDvR8R";
@@ -23,6 +25,7 @@ internal sealed class IntroductionWindow : Window
     public IntroductionWindow(IDalamudPluginInterface pi, ITextureProvider textures, ModuleLoader loader, Action refresh, PublicUi ui)
         : base($"MOM v{BuildInfo.Version}##Information")
     {
+        supportPluginInterface = pi;
         this.loader = loader; this.refresh = refresh; this.ui = ui;
         Size = new Vector2(1472, 932);
         SizeCondition = ImGuiCond.FirstUseEver;
@@ -125,6 +128,8 @@ internal sealed class IntroductionWindow : Window
                 if (CommunityButton("Support on Ko-fi", ui.T("Support on Ko-fi"), new(-1, (ui.Compact ? 48 : 76) * scale), discord: false)) Util.OpenLink(SupportUrl);
             }
             ui.Paragraph("SupportBoundary");
+            supportLog.Draw(supportPluginInterface, key => ui.T(key),
+                path => System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = path, UseShellExecute = true }), ex => Plugin.Log.Error(ex, "Dalamud log export failed."), Plugin.CommandManager);
         });
         if (columns > 1) ImGui.SameLine();
         Card("Access", root, width, height, MaterialIcon.Download, () =>
