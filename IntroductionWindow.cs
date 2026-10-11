@@ -12,6 +12,7 @@ namespace mom.PublicShell;
 
 internal sealed class IntroductionWindow : Window
 {
+    private readonly AethertekUI.Dalamud.MaterialAppearanceTitleBar appearanceTitleBar;
     private readonly AethertekUI.Dalamud.MaterialSupportLog supportLog = new();
     private readonly IDalamudPluginInterface supportPluginInterface;
     private readonly AethertekUI.Dalamud.MaterialWindowMotion motion = new();
@@ -49,9 +50,11 @@ internal sealed class IntroductionWindow : Window
             ShowTooltip = () => MaterialText.SetTooltip(ui.T("Refresh access") + "\n"
                 + ui.T(loader.Failed ? "Access needs attention" : loader.Module != null ? "Active" : "No access module installed")),
         });
+        appearanceTitleBar = ui.RegisterTitleBar(this);
     }
     public override void PreDraw()
     {
+        appearanceTitleBar.RefreshVisibility();
         UiStyle.ReserveImageTitleSpace(this, $"MOM v{BuildInfo.Version}");
         motion.Prepare(this, reducedMotion: false, roundedCorners: true);
     }
@@ -59,6 +62,7 @@ internal sealed class IntroductionWindow : Window
     {
         motion.Restore(this);
         UiStyle.PaintTitleImage(this, $"MOM v{BuildInfo.Version}", icon);
+        appearanceTitleBar.DrawPopups();
         ui.ApplyWindowOpacity(windowOpacity, WindowName);
     }
 
@@ -97,11 +101,6 @@ internal sealed class IntroductionWindow : Window
             MaterialText.TextDisabled(ui.T("By DhogGPT"));
         }
         ImGui.EndGroup();
-        if (ImGui.GetContentRegionAvail().X > 480 * scale)
-        {
-            ImGui.SameLine();
-            ImGui.SetCursorPosX(Math.Max(ImGui.GetCursorPosX(), ImGui.GetWindowSize().X - ImGui.GetStyle().WindowPadding.X - (ui.Compact ? 290 : 470) * scale));
-        }
         ui.Appearance();
         ui.Paragraph("Public access host");
         ImGui.Separator();

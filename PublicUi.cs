@@ -80,6 +80,32 @@ internal sealed class PublicUi : IDisposable
         => opacity.Apply(windowName, preferences.UiWindowOpacityPercent / 100f, preferences.UiTransparencyEnabled,
             preferences.UiAutoFade, preferences.UiFadedOpacityPercent / 100f, preferences.UiUnfocusedDelaySeconds);
 
+    internal MaterialAppearanceTitleBar RegisterTitleBar(Dalamud.Interface.Windowing.Window owner)
+        => MaterialAppearanceTitleBar.Register(owner,
+            () => new(T("Language"), T("Compact mode"), T("Transparency"), T("Color")),
+            DrawTitleLanguage, () => { preferences.Compact = !preferences.Compact; preferences.Save(); }, DrawWindowSettings, DrawTitleColour,
+            () => new(preferences.UiLanguageVisibleOnMainWindow, preferences.UiCompactVisibleOnMainWindow, preferences.UiTransparencyVisibleOnMainWindow, true));
+
+    private void DrawTitleLanguage()
+    {
+        var language = sets.ContainsKey(preferences.Language) ? preferences.Language : "en";
+        using var action = Font(UiFontRole.Action);
+        var options = new MaterialOptions<string>(Languages.Select(l => new MaterialOption<string>(l.Code, l.Code,
+            l.Code == "hi" && !fonts.HindiAvailable ? "Hindi (unavailable)" : l.Name, l.Code == "hi" && !fonts.HindiAvailable)).ToArray());
+        if (MaterialAppearanceSelector.DrawLanguage("mom-public-titlebar-language", ref language, options, 180))
+        { preferences.Language = language; preferences.Save(); }
+    }
+
+    private void DrawTitleColour()
+    {
+        if (draftAccent != preferences.Accent)
+        { draftAccent = preferences.Accent; var rgb = UiStyle.Rgb(draftAccent); accentDraft = new(rgb.X, rgb.Y, rgb.Z); }
+        using var action = Font(UiFontRole.Action);
+        if (MaterialAppearanceSelector.DrawPalette("mom-public-titlebar-colour", ref accentDraft,
+            new(T("Color"), T("Language"), T("Teal"), T("Blue"), T("Pink"), T("Custom RGB"))))
+        { preferences.Accent = UiStyle.Pack(accentDraft); preferences.Save(); }
+    }
+
     internal void Appearance()
     {
         if (draftAccent != preferences.Accent)
@@ -94,25 +120,6 @@ internal sealed class PublicUi : IDisposable
         using var controls = MaterialControls.Push();
         var options = new MaterialOptions<string>(Languages.Select(l => new MaterialOption<string>(l.Code, l.Code,
             l.Code == "hi" && !fonts.HindiAvailable ? "Hindi (unavailable)" : l.Name, l.Code == "hi" && !fonts.HindiAvailable)).ToArray());
-        if (preferences.UiLanguageVisibleOnMainWindow)
-        {
-            var languageChanged = MaterialAppearanceSelector.DrawLanguage("mom-public-appearance", ref language, options, frameCompact ? 130 : 220);
-            if (languageChanged) { preferences.Language = language; preferences.Save(); }
-        }
-        if (preferences.UiCompactVisibleOnMainWindow)
-        {
-            SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + MaterialText.Measure("C").X);
-            var compact = preferences.Compact;
-            if (UiStyle.NativeCheckbox("C##mom-public-compact", ref compact)) { preferences.Compact = compact; preferences.Save(); }
-            if (ImGui.IsItemHovered()) MaterialText.SetTooltip(T("Compact mode"));
-        }
-        if (preferences.UiTransparencyVisibleOnMainWindow)
-        {
-            SameLineIfFits(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X + MaterialText.Measure(T("Transparency")).X);
-            var enabled = preferences.UiTransparencyEnabled;
-            if (UiStyle.NativeCheckbox(T("Transparency") + "###window-transparency-main", ref enabled))
-            { preferences.UiTransparencyEnabled = enabled; preferences.Save(); }
-        }
         SameLineIfFits(MaterialControls.Metrics.Height);
         if (MaterialButton.IconButton("window-settings", MaterialIcon.Settings))
             ImGui.OpenPopup("mom-public-window-appearance");
