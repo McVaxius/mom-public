@@ -39,6 +39,7 @@ internal sealed class ManagedUiFonts : IDisposable
         if (selected == language && selectedCompact == compact) return;
         using var suppress = atlas.SuppressAutoRebuild();
         foreach (var handle in handles.Concat(bodyHandles)) { handle.ImFontChanged -= Changed; handle.Dispose(); }
+        handles = []; bodyHandles = [];
         language = selected; compact = selectedCompact;
         required = strings.Concat(["English", "Deutsch", "Français", "Español", "Italiano", "Русский", "日本語", "한국어", "简体中文", "繁體中文", "Português (Brasil)", "Tiếng Việt", "Bahasa Indonesia", "Polski", "Türkçe", "Hindi (unavailable)", "♡", "—", "…"]).Distinct().ToArray();
         var ranges = required.Select(MaterialText.NativeGlyphText).SelectMany(text => text).Where(c => !char.IsControl(c))
@@ -46,24 +47,40 @@ internal sealed class ManagedUiFonts : IDisposable
             .Concat(Enumerable.Range(0x400, 0x130).Select(i => (char)i)).ToGlyphRange();
         glyphError = null; checkedGeneration = -1;
         HindiAvailable = false;
-        IFontHandle Create(float size, string file) => atlas.NewDelegateFontHandle(step => step.OnPreBuild(build =>
+        var created = new List<IFontHandle>();
+        IFontHandle Create(float size, string file)
         {
-            build.NewImAtlas.TexDesiredWidth = 4096;
-            build.NewImAtlas.TexDesiredHeight = 4096;
-            build.Font = build.AddFontFromFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), file),
-                new SafeFontConfig { SizePx = size, GlyphRanges = ranges });
-            build.AddFontFromFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "seguisym.ttf"),
-                new SafeFontConfig { SizePx = size, MergeFont = build.Font, GlyphRanges = ranges });
-            // Verified bundled TTC faces: JP=0, KR=1, SC=2, TC=3.
-            build.AddDalamudAssetFont(DalamudAsset.NotoSansCjkRegular,
-                new SafeFontConfig { SizePx = size, MergeFont = build.Font, GlyphRanges = ranges,
-                    FontNo = selected switch { "ko" => 1, "zh-Hans" or "zh-CN" => 2, "zh-Hant" or "zh-TW" => 3, _ => 0 } });
-            build.AttachExtraGlyphsForDalamudLanguage(new SafeFontConfig { SizePx = size, MergeFont = build.Font });
-            build.AddGameSymbol(new SafeFontConfig { SizePx = size, MergeFont = build.Font });
-        }));
-        handles = UiStyle.FontSizes.Select((pointSize, index) => Create(pointSize * 4 / 3, UiStyle.FontFiles[index])).ToArray();
-        bodyHandles = BodySizes().Select(size => Create(size, UiStyle.FontFiles[(int)UiFontRole.Body])).ToArray();
-        foreach (var handle in handles.Concat(bodyHandles)) handle.ImFontChanged += Changed;
+            var handle = atlas.NewDelegateFontHandle(step => step.OnPreBuild(build =>
+            {
+                build.NewImAtlas.TexDesiredWidth = 4096;
+                build.NewImAtlas.TexDesiredHeight = 4096;
+                build.Font = build.AddFontFromFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), file),
+                    new SafeFontConfig { SizePx = size, GlyphRanges = ranges });
+                build.AddFontFromFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "seguisym.ttf"),
+                    new SafeFontConfig { SizePx = size, MergeFont = build.Font, GlyphRanges = ranges });
+                // Verified bundled TTC faces: JP=0, KR=1, SC=2, TC=3.
+                build.AddDalamudAssetFont(DalamudAsset.NotoSansCjkRegular,
+                    new SafeFontConfig { SizePx = size, MergeFont = build.Font, GlyphRanges = ranges,
+                        FontNo = selected switch { "ko" => 1, "zh-Hans" or "zh-CN" => 2, "zh-Hant" or "zh-TW" => 3, _ => 0 } });
+                build.AttachExtraGlyphsForDalamudLanguage(new SafeFontConfig { SizePx = size, MergeFont = build.Font });
+                build.AddGameSymbol(new SafeFontConfig { SizePx = size, MergeFont = build.Font });
+            }));
+            created.Add(handle);
+            return handle;
+        }
+        try
+        {
+            handles = UiStyle.FontSizes.Select((pointSize, index) => Create(pointSize * 4 / 3, UiStyle.FontFiles[index])).ToArray();
+            bodyHandles = BodySizes().Select(size => Create(size, UiStyle.FontFiles[(int)UiFontRole.Body])).ToArray();
+            foreach (var handle in created) handle.ImFontChanged += Changed;
+        }
+        catch (Exception error)
+        {
+            glyphError = error;
+            handles = []; bodyHandles = [];
+            foreach (var handle in created) { handle.ImFontChanged -= Changed; handle.Dispose(); }
+            throw;
+        }
     }
     internal float[] BodySizes() => publicHost
         ? [compact ? 56f / 3 : 20f, compact ? 19.2f : 32f]
