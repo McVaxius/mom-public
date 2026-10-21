@@ -67,7 +67,7 @@ internal static class UiStyle
     internal static Vector4 Rgb(uint rgb) => new(((rgb >> 16) & 255) / 255f, ((rgb >> 8) & 255) / 255f, (rgb & 255) / 255f, 1);
     internal static uint Pack(Vector3 rgb) => ((uint)Math.Clamp((int)MathF.Round(rgb.X * 255), 0, 255) << 16)
         | ((uint)Math.Clamp((int)MathF.Round(rgb.Y * 255), 0, 255) << 8) | (uint)Math.Clamp((int)MathF.Round(rgb.Z * 255), 0, 255);
-    internal static MaterialTheme Theme(uint accent, bool publicHost)
+    internal static MaterialTheme Theme(uint accent, bool publicHost, MaterialColorSettings? colorSettings = null)
     {
         var referenceRgb = publicHost ? 0xA475FFu : 0x00DFE6u;
         accent &= 0xFFFFFF;
@@ -108,7 +108,7 @@ internal static class UiStyle
             TertiaryContainer = Relative(publicHost ? 0x2C3544u : 0x243F4Eu), OnTertiaryContainer = foreground,
             InverseSurface = foreground, InverseOnSurface = background, InversePrimary = Relative(publicHost ? 0x6542A9u : 0x167E87u),
         };
-        return new(colors) { SurfaceOpacity = 1 };
+        return new((colorSettings ?? new()).Apply(colors)) { SurfaceOpacity = 1 };
     }
     internal static MaterialStyleScope Geometry(float scale, bool publicHost = false)
     {

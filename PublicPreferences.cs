@@ -1,4 +1,7 @@
+using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.Json.Serialization;
+using AethertekUI;
 using Dalamud.Plugin;
 
 namespace mom.PublicShell;
@@ -7,8 +10,10 @@ namespace mom.PublicShell;
 internal sealed class PublicPreferences
 {
     private readonly string path;
+    private static readonly JsonSerializerOptions colorJson = new() { Converters = { new JsonStringEnumConverter() } };
     private DateTime observedWrite = DateTime.MinValue;
     internal uint Accent { get; set; } = 0xA475FF;
+    internal MaterialColorSettings Colors { get; set; } = new();
     internal bool Compact { get; set; } = true;
     internal string Language { get; set; } = "en";
     internal bool UiCompactVisibleOnMainWindow { get; set; }
@@ -31,6 +36,7 @@ internal sealed class PublicPreferences
         if (loaded && written == observedWrite) return;
         var root = Read();
         Accent = root["UiAccentRgb"]?.GetValue<uint>() ?? 0xA475FF;
+        Colors = root["UiColors"]?.Deserialize<MaterialColorSettings>(colorJson) ?? new();
         Compact = root["UiCompact"]?.GetValue<bool>() ?? true;
         Language = root["PublicUiLanguage"]?.GetValue<string>() ?? "en";
         UiCompactVisibleOnMainWindow = root["UiCompactVisibleOnMainWindow"]?.GetValue<bool>() ?? false;
@@ -53,6 +59,7 @@ internal sealed class PublicPreferences
     {
         var root = Read();
         root["UiAccentRgb"] = Accent; root["UiCompact"] = Compact; root["PublicUiLanguage"] = Language;
+        root["UiColors"] = JsonSerializer.SerializeToNode(Colors);
         root["UiCompactVisibleOnMainWindow"] = UiCompactVisibleOnMainWindow;
         root["UiTransparencyVisibleOnMainWindow"] = UiTransparencyVisibleOnMainWindow;
         root["UiCompactDefaultsApplied"] = true;

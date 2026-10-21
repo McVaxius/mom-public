@@ -25,6 +25,9 @@ internal sealed class PublicUi : IDisposable
     private uint accent;
     private uint draftAccent = uint.MaxValue;
     private Vector3 accentDraft;
+    private MaterialColorSettings colorDraft = new();
+    private MaterialColorSettings? savedColors;
+    private MaterialColorSettings? appliedColors;
     private bool frameCompact;
     private bool loggedFontIssue;
     private bool appearanceRequested;
@@ -58,7 +61,9 @@ internal sealed class PublicUi : IDisposable
         fonts.PrepareForDensity(language, current.Cast<DictionaryEntry>().Select(e => (string)e.Value!)
             .Concat(Languages.Where(l => l.Code != "hi").Select(l => l.Name)), frameCompact);
         var selected = preferences.Accent & 0xFFFFFF;
-        if (theme == null || accent != selected) { accent = selected; theme = UiStyle.Theme(selected, true); }
+        if (savedColors != preferences.Colors) { colorDraft = preferences.Colors; savedColors = preferences.Colors; }
+        if (theme == null || accent != selected || appliedColors != colorDraft)
+        { accent = selected; appliedColors = colorDraft; theme = UiStyle.Theme(selected, true, colorDraft); }
         theme.Density = frameCompact ? MaterialDensity.Compact : MaterialDensity.Standard;
         using var colors = MaterialTheme.Push(theme, ImGui.GetIO().FontGlobalScale, MaterialStyleMode.ColorsOnly);
         using var chrome = MaterialWindowChrome.Push();
@@ -101,9 +106,21 @@ internal sealed class PublicUi : IDisposable
         if (draftAccent != preferences.Accent)
         { draftAccent = preferences.Accent; var rgb = UiStyle.Rgb(draftAccent); accentDraft = new(rgb.X, rgb.Y, rgb.Z); }
         using var action = Font(UiFontRole.Action);
-        if (MaterialAppearanceSelector.DrawPalette("mom-public-titlebar-colour", ref accentDraft,
-            new(T("Color"), T("Language"), T("Teal"), T("Blue"), T("Pink"), T("Custom RGB"))))
-        { preferences.Accent = UiStyle.Pack(accentDraft); preferences.Save(); }
+        DrawColourEditor("mom-public-titlebar-colour");
+    }
+
+    private void DrawColourEditor(string id)
+    {
+        if (!MaterialAppearanceSelector.DrawColors(id, ref colorDraft, ref accentDraft,
+            new(T("Color"), T("Language"), T("Teal"), T("Blue"), T("Pink"), T("Custom RGB")),
+            new(T("Auto"), T("Picker"), T("Default"), T("Background, controls and text follow your theme."),
+                T("Theme colour"), T("Choose each colour independently."), T("Background"), T("Controls"),
+                T("Text"), T("Aa  Preview text"), T("Control"),
+                T("Switch to Picker to set each colour yourself."), T("Switch back to Auto to use the automatic theme.")),
+            frameCompact ? 298 : 316)) return;
+        preferences.Colors = colorDraft;
+        preferences.Accent = MaterialColorSettings.ToRgb(accentDraft);
+        preferences.Save();
     }
 
     internal void Appearance()
@@ -134,10 +151,8 @@ internal sealed class PublicUi : IDisposable
         MaterialText.Text(T("Window appearance")); ImGui.Separator();
         // Keep the moved colour action on its original root; new settings controls own popup IDs.
         ImGuiP.PushOverrideID(root);
-        var accentChanged = MaterialAppearanceSelector.DrawAccent("mom-public-appearance", ref accentDraft,
-            new(T("Color"), T("Language"), T("Teal"), T("Blue"), T("Pink"), T("Custom RGB")), frameCompact ? 28 : 40);
+        DrawColourEditor("mom-public-appearance");
         ImGui.PopID();
-        if (accentChanged) { preferences.Accent = UiStyle.Pack(accentDraft); preferences.Save(); }
         var settingsCompact = preferences.Compact;
         if (UiStyle.NativeCheckbox(T("Compact mode") + "###window-compact-settings", ref settingsCompact))
         { preferences.Compact = settingsCompact; preferences.Save(); }
