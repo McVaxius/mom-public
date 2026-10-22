@@ -2,5 +2,5 @@ namespace mom.PublicShell;
 
 public static class BuildInfo
 {
-    public const string Version = "4.0.0.12";
+    public const string Version = "4.0.0.13";
 }

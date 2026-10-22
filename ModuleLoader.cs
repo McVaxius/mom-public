@@ -153,9 +153,9 @@ internal sealed class ModuleLoader : IDisposable
                     throw new FileLoadException("Embedded access dependency identity mismatch: " + name.FullName);
                 return dependency;
             }
-            if (name.Name == "FFXIVClientStructs")
+            if (name.Name is "FFXIVClientStructs" or "Dalamud")
             {
-                // ClientStructs is supplied by the running Dalamud host, not pinned by this module.
+                // Share the running host's framework assemblies across compatible patch updates.
                 var hostAssembly = typeof(IDalamudPluginInterface).Assembly;
                 var hostContext = AssemblyLoadContext.GetLoadContext(hostAssembly)
                     ?? throw new FileLoadException("Dalamud host load context is unavailable.");
@@ -165,10 +165,11 @@ internal sealed class ModuleLoader : IDisposable
                 var identity = dependency.GetName();
                 hostRequest.Version = identity.Version;
                 if (hostRequest.FullName != identity.FullName ||
+                    AssemblyLoadContext.GetLoadContext(dependency) != hostContext ||
                     name.Version != null && (identity.Version == null || identity.Version < name.Version) ||
                     !string.Equals(Path.GetDirectoryName(dependency.Location),
                         Path.GetDirectoryName(hostAssembly.Location), StringComparison.OrdinalIgnoreCase))
-                    throw new FileLoadException("ClientStructs does not match the running Dalamud host.");
+                    throw new FileLoadException(name.Name + " does not match the running Dalamud host.");
                 return dependency;
             }
             var runtime = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
