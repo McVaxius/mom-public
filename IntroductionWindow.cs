@@ -54,6 +54,7 @@ internal sealed class IntroductionWindow : Window
     }
     public override void PreDraw()
     {
+        ui.PrepareTitleBar(this, appearanceTitleBar);
         appearanceTitleBar.RefreshVisibility();
         UiStyle.ReserveImageTitleSpace(this, $"MOM v{BuildInfo.Version}");
         motion.Prepare(this, reducedMotion: false, roundedCorners: true);
@@ -71,6 +72,7 @@ internal sealed class IntroductionWindow : Window
         motion.DrawChrome();
         var narrow = ImGui.GetWindowSize().X < 620 * ImGui.GetIO().FontGlobalScale;
         using var scale = ui.WindowBody(narrow);
+        if (MaterialTheme.Current.IsLcars) MaterialLcars.Header("MOM");
         DrawContent();
     }
     private void DrawContent()
@@ -161,26 +163,28 @@ internal sealed class IntroductionWindow : Window
         var textSize = MaterialText.Measure(visible);
         size.X = MaterialLayout.FitNextItemWidth(size.X, textSize.X + ImGui.GetStyle().FramePadding.X * 2 + logoWidth);
         if (MaterialText.RequiresShaping(visible)) size.Y = Math.Max(size.Y,textSize.Y + 2 * ImGui.GetStyle().FramePadding.Y);
+        using var primaryStyle = new MaterialStyleScope();
         if (discord)
         {
-            ImGui.PushStyleColor(ImGuiCol.Button, colors.PrimaryContainer);
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .25f));
-            ImGui.PushStyleColor(ImGuiCol.ButtonActive, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .4f));
+            primaryStyle.Color(ImGuiCol.Button, colors.PrimaryContainer);
+            primaryStyle.Color(ImGuiCol.ButtonHovered, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .25f));
+            primaryStyle.Color(ImGuiCol.ButtonActive, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .4f));
         }
+        using var lcars = MaterialLcars.NativeButtonStyle();
+        var captionInk = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
         ImGui.PushStyleColor(ImGuiCol.Text, Vector4.Zero);
         bool pressed;
         try { pressed = ImGui.Button(native, size); }
         finally
         {
             ImGui.PopStyleColor();
-            if (discord) ImGui.PopStyleColor(3);
         }
         var min = ImGui.GetItemRectMin();
         var max = ImGui.GetItemRectMax();
         var centerY = (min.Y + max.Y) * .5f;
         var x = min.X + (max.X - min.X - textSize.X - logoWidth) * .5f;
         var alpha = ImGui.GetStyle().Alpha;
-        var ink = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
+        var ink = captionInk;
         ink.W *= alpha;
         var drawList = ImGui.GetWindowDrawList();
         drawList.PushClipRect(min, max, true);
@@ -191,6 +195,7 @@ internal sealed class IntroductionWindow : Window
             MaterialText.AddText(drawList, ImGui.GetFont(), fontSize, new(x + logoWidth, centerY - textSize.Y * .5f), ImGui.ColorConvertFloat4ToU32(ink), visible);
         }
         finally { drawList.PopClipRect(); }
+        MaterialLcars.Feedback(pressed);
         return pressed;
     }
     private void Card(string id, uint root, float width, float height, MaterialIcon symbol, Action draw)

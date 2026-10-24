@@ -88,4 +88,11 @@
   <data name="Control" xml:space="preserve"><value>Controllo</value></data>
   <data name="Switch to Picker to set each colour yourself." xml:space="preserve"><value>Passa a Selettore per impostare ogni colore.</value></data>
   <data name="Switch back to Auto to use the automatic theme." xml:space="preserve"><value>Torna ad Automatico per usare il tema automatico.</value></data>
+  <data name="LCARS" xml:space="preserve"><value>LCARS</value></data>
+  <data name="LCARS panels, bars and controls" xml:space="preserve"><value>Pannelli, barre e controlli LCARS</value></data>
+  <data name="UI sounds" xml:space="preserve"><value>Suoni dell’interfaccia</value></data>
+  <data name="Preview sound" xml:space="preserve"><value>Anteprima suono</value></data>
+  <data name="Audio output is unavailable." xml:space="preserve"><value>L’uscita audio non è disponibile.</value></data>
+  <data name="UI sounds muted" xml:space="preserve"><value>Suoni dell’interfaccia disattivati</value></data>
+  <data name="UI sounds on" xml:space="preserve"><value>Suoni dell’interfaccia attivi</value></data>
 </root>

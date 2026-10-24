@@ -1,5 +1,12 @@
 # MOM
 
+Window appearance offers Auto / Picker / LCARS. LCARS adds segmented headers,
+elbows, framed cards and outlined controls while retaining the original access
+actions. UI tones start muted; Settings and the LCARS titlebar speaker share the
+same saved preference. Colour and mute choices survive public/private transitions
+without replacing private configuration fields. Game/GPU and audible-device
+acceptance remain separate from local build and diagnostic verification.
+
 Compact mode is enabled once on upgrade. Main Compact and Transparency shortcuts start hidden; Window appearance can restore either shortcut independently and change density or opacity. Later loads retain those choices and unrelated settings.
 
 MOM is a free public plugin by DhogGPT. Additional functionality is available through privately granted access.
@@ -58,7 +65,7 @@ The public host provides the access directory, validation and refresh IPC endpoi
 
 Private modules and public shells use the current Dalamud host's ClientStructs and Dalamud assemblies. Older compiled references bind to those host instances across compatible updates; no fixed ClientStructs or Dalamud patch number, replacement ClientStructs copy, or product-version bump is needed solely for that change. Builds use the current supported bundle selected by `DalamudLibPath` / `DALAMUD_HOME`; existing public CI provisions the latest bundle. Local private launchers reuse that selected local bundle and do not download a replacement. Keep Dalamud current. Actual removed APIs or native layout changes can require C# changes and a rebuild. Package verification exercises the actual public host and checks host identity, load context and trusted paths while retaining signed payloads and exact plugin/UI contracts. Existing installed shells require one update to receive this resolver change; build/test does not install it.
 
-This repository contains the complete public host source, loader, public trust anchor and manifest validation. It builds without private source or files from `!cryptography`. With SDK 10.0.201, Dalamud API 15 references and the sibling AethertekUI 0.3.0 checkout from published main available, run `dotnet build mom.csproj -c Release -p:Platform=x64`. The package is `bin/x64/Release/mom/latest.zip` and includes `AethertekUI.dll` and `AethertekUI.Dalamud.dll` through an explicit public-file allow-list. The existing `Z:\momp.bat` also copies it to this repository's `latest.zip`. The dependency checkout follows published AethertekUI main so compatible API additions are available without per-plugin pin updates. Publish shared library APIs before consumer changes. Authentication uses the repository-specific read-only SSH deploy key, which has no expiration; checkout does not persist credentials.
+This repository contains the complete public host source, loader, public trust anchor and manifest validation. It builds without private source or files from `!cryptography`. With SDK 10.0.201, Dalamud API 15 references and the sibling AethertekUI 0.3.0 checkout from published main available, run `dotnet build mom.csproj -c Release -p:Platform=x64`. The package is `bin/x64/Release/mom/latest.zip` and includes `AethertekUI.dll` and `AethertekUI.Dalamud.dll` through an explicit public-file allow-list. The existing `Z:\momp.bat` also copies it to this repository's `latest.zip`. CI pins the published AethertekUI baseline `4c49da19ab6522ed1995cfd2b9bd75020f105d6c` for this LCARS integration. Publish shared library APIs before consumer changes. Authentication uses the repository-specific read-only SSH deploy key, which has no expiration; checkout does not persist credentials.
 
 Public release version: `3.0.0.0`. The CLR assembly identity remains `1.0.0.0` for private-module compatibility. Private module loading shares only the exact AethertekUI assembly referenced by this host; it does not search for arbitrary adjacent dependencies.
 

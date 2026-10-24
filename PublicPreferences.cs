@@ -14,6 +14,7 @@ internal sealed class PublicPreferences
     private DateTime observedWrite = DateTime.MinValue;
     internal uint Accent { get; set; } = 0xA475FF;
     internal MaterialColorSettings Colors { get; set; } = new();
+    internal bool UiLcarsSoundsMuted { get; set; } = true;
     internal bool Compact { get; set; } = true;
     internal string Language { get; set; } = "en";
     internal bool UiCompactVisibleOnMainWindow { get; set; }
@@ -37,6 +38,7 @@ internal sealed class PublicPreferences
         var root = Read();
         Accent = root["UiAccentRgb"]?.GetValue<uint>() ?? 0xA475FF;
         Colors = root["UiColors"]?.Deserialize<MaterialColorSettings>(colorJson) ?? new();
+        UiLcarsSoundsMuted = root["UiLcarsSoundsMuted"]?.GetValue<bool>() ?? true;
         Compact = root["UiCompact"]?.GetValue<bool>() ?? true;
         Language = root["PublicUiLanguage"]?.GetValue<string>() ?? "en";
         UiCompactVisibleOnMainWindow = root["UiCompactVisibleOnMainWindow"]?.GetValue<bool>() ?? false;
@@ -60,6 +62,7 @@ internal sealed class PublicPreferences
         var root = Read();
         root["UiAccentRgb"] = Accent; root["UiCompact"] = Compact; root["PublicUiLanguage"] = Language;
         root["UiColors"] = JsonSerializer.SerializeToNode(Colors);
+        root["UiLcarsSoundsMuted"] = UiLcarsSoundsMuted;
         root["UiCompactVisibleOnMainWindow"] = UiCompactVisibleOnMainWindow;
         root["UiTransparencyVisibleOnMainWindow"] = UiTransparencyVisibleOnMainWindow;
         root["UiCompactDefaultsApplied"] = true;

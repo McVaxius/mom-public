@@ -31,6 +31,9 @@ internal sealed class PublicUi : IDisposable
     private bool frameCompact;
     private bool loggedFontIssue;
     private bool appearanceRequested;
+    private MaterialUiSoundPlayer? uiSounds;
+    private Dalamud.Interface.Windowing.TitleBarButton? soundButton;
+    private bool soundEnabled;
     internal PublicUi(IDalamudPluginInterface pi, ITextureProvider textures)
     {
         preferences = new(pi); shapedText = new(textures); fonts = new(pi.UiBuilder, "MOM public interface", shapedText.Renderer, publicHost: true);
@@ -65,6 +68,10 @@ internal sealed class PublicUi : IDisposable
         if (theme == null || accent != selected || appliedColors != colorDraft)
         { accent = selected; appliedColors = colorDraft; theme = UiStyle.Theme(selected, true, colorDraft); }
         theme.Density = frameCompact ? MaterialDensity.Compact : MaterialDensity.Standard;
+        theme.Feedback = PlaySound;
+        var enabled = theme.IsLcars && !preferences.UiLcarsSoundsMuted;
+        if (soundEnabled && !enabled) uiSounds?.Stop();
+        soundEnabled = enabled;
         using var colors = MaterialTheme.Push(theme, ImGui.GetIO().FontGlobalScale, MaterialStyleMode.ColorsOnly);
         using var chrome = MaterialWindowChrome.Push();
         if (!fonts.Ready())
@@ -116,9 +123,11 @@ internal sealed class PublicUi : IDisposable
             new(T("Auto"), T("Picker"), T("Default"), T("Background, controls and text follow your theme."),
                 T("Theme colour"), T("Choose each colour independently."), T("Background"), T("Controls"),
                 T("Text"), T("Aa  Preview text"), T("Control"),
-                T("Switch to Picker to set each colour yourself."), T("Switch back to Auto to use the automatic theme.")),
+                T("Switch to Picker to set each colour yourself."), T("Switch back to Auto to use the automatic theme."))
+                { Lcars = T("LCARS"), LcarsHelp = T("LCARS panels, bars and controls") },
             frameCompact ? 298 : 316)) return;
         preferences.Colors = colorDraft;
+        if (colorDraft.Mode != MaterialColorMode.Lcars) { uiSounds?.Stop(); soundEnabled = false; }
         preferences.Accent = MaterialColorSettings.ToRgb(accentDraft);
         preferences.Save();
     }
@@ -164,6 +173,25 @@ internal sealed class PublicUi : IDisposable
 
     private void DrawWindowSettings()
     {
+        ImGui.BeginDisabled(preferences.Colors.Mode != MaterialColorMode.Lcars);
+        try
+        {
+            var sounds = !preferences.UiLcarsSoundsMuted;
+            if (UiStyle.NativeCheckbox(T("UI sounds") + "###mom-public-ui-sounds", ref sounds)) SetSoundsMuted(!sounds);
+            ImGui.BeginDisabled(preferences.UiLcarsSoundsMuted);
+            try
+            {
+                var current = MaterialTheme.Current;
+                var feedback = current.Feedback;
+                bool preview;
+                try { current.Feedback = null; preview = UiStyle.NativeButton("mom-public-ui-sound-preview", T("Preview sound"), default); }
+                finally { current.Feedback = feedback; }
+                MaterialLcars.Feedback(preview, MaterialUiSoundCue.Preview);
+            }
+            finally { ImGui.EndDisabled(); }
+            if (uiSounds?.Error is not null) Text(T("Audio output is unavailable."));
+        }
+        finally { ImGui.EndDisabled(); }
         var changed = false;
         var compactVisible = preferences.UiCompactVisibleOnMainWindow;
         if (UiStyle.NativeCheckbox(T("Compact visible on main window") + "###window-compact-visible", ref compactVisible))
@@ -207,7 +235,8 @@ internal sealed class PublicUi : IDisposable
     {
         using var heading = Font(UiFontRole.Heading);
         using var scale = new UiStyle.TextScale(25f * 11 / (13 * 18));
-        Paragraph(key);
+        if (MaterialTheme.Current.IsLcars) MaterialLcars.PanelHeading(T(key), 1);
+        else Paragraph(key);
     }
     internal void Paragraph(string key) => Text(T(key));
     internal void Text(string text)
@@ -217,5 +246,31 @@ internal sealed class PublicUi : IDisposable
         MaterialText.Text(text);
         ImGui.PopTextWrapPos();
     }
-    public void Dispose() { fonts.Dispose(); shapedText.Dispose(); foreach (var set in sets.Values) set.Dispose(); }
+    private void PlaySound(MaterialUiSoundCue cue)
+    {
+        if (preferences.Colors.Mode == MaterialColorMode.Lcars && !preferences.UiLcarsSoundsMuted)
+            (uiSounds ??= new()).TryPlay(cue);
+    }
+    private void SetSoundsMuted(bool muted)
+    {
+        preferences.UiLcarsSoundsMuted = muted;
+        preferences.Save();
+        if (muted) uiSounds?.Stop();
+    }
+    internal void PrepareTitleBar(Dalamud.Interface.Windowing.Window owner, MaterialAppearanceTitleBar actions)
+    {
+        var lcars = MaterialTheme.Current.IsLcars;
+        actions.SetLcarsIcons(lcars);
+        soundButton ??= new()
+        {
+            Priority = (int)Math.Max(int.MinValue + 1L, owner.TitleBarButtons.Select(button => (long)button.Priority).DefaultIfEmpty(0).Min() - 1),
+            IconOffset = new(2, 1),
+            Click = button => { if (button == ImGuiMouseButton.Left && preferences.Colors.Mode == MaterialColorMode.Lcars) SetSoundsMuted(!preferences.UiLcarsSoundsMuted); },
+            ShowTooltip = () => MaterialText.SetTooltip(T(preferences.UiLcarsSoundsMuted ? "UI sounds muted" : "UI sounds on")),
+        };
+        soundButton.Icon = preferences.UiLcarsSoundsMuted ? Dalamud.Interface.FontAwesomeIcon.VolumeMute : Dalamud.Interface.FontAwesomeIcon.VolumeUp;
+        if (lcars && !owner.TitleBarButtons.Contains(soundButton)) owner.TitleBarButtons.Add(soundButton);
+        else if (!lcars) owner.TitleBarButtons.Remove(soundButton);
+    }
+    public void Dispose() { uiSounds?.Dispose(); fonts.Dispose(); shapedText.Dispose(); foreach (var set in sets.Values) set.Dispose(); }
 }

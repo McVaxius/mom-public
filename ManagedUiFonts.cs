@@ -156,11 +156,12 @@ internal sealed class ManagedUiFonts : IDisposable
         if (ImGui.Begin("MOM##FontStatus", ImGuiWindowFlags.AlwaysAutoResize))
         {
             statusDecorations.Paint();
+            if (MaterialTheme.Current.IsLcars) MaterialLcars.Header("MOM");
             MaterialText.TextWrapped(message);
             if (showEnglishRecovery || useEnglish is not null)
             {
                 ImGui.BeginDisabled(useEnglish is null);
-                try { if (ImGui.Button("Use English")) useEnglish?.Invoke(); }
+                try { if (UiStyle.NativeButton("Use English", "Use English", default)) useEnglish?.Invoke(); }
                 finally { ImGui.EndDisabled(); }
             }
         }

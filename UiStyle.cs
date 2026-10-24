@@ -59,7 +59,7 @@ internal static class UiStyle
     }
     internal static bool Compact { get; set; }
     internal static float PrivateTextScale => Compact ? 1.25f : 15f / 11;
-    internal static float Padding => Compact ? 10 : 14;
+    internal static float Padding => MaterialTheme.Current.IsLcars ? 20 : Compact ? 10 : 14;
     internal static float Gap => Compact ? 10 : 14;
     internal static Vector4 Ready => Rgb(0x24E6CB);
     internal static Vector4 Warning => Rgb(0xFFBF68);
@@ -120,6 +120,12 @@ internal static class UiStyle
         scope.Style(ImGuiStyleVar.FrameRounding, 4 * scale);
         scope.Style(ImGuiStyleVar.ChildRounding, 4 * scale);
         scope.Style(ImGuiStyleVar.FrameBorderSize, scale);
+        if (MaterialTheme.Current.IsLcars)
+        {
+            scope.Color(ImGuiCol.CheckMark, MaterialLcars.ControlBlue);
+            scope.Color(ImGuiCol.SliderGrab, MaterialLcars.ControlBlue);
+            scope.Color(ImGuiCol.SliderGrabActive, MaterialLcars.ControlBlue);
+        }
         return scope;
     }
     internal static void Panel(string id, uint root, Vector2 size, Action draw, bool raised = false, float? padding = null, float radius = 4)
@@ -128,9 +134,13 @@ internal static class UiStyle
         var min = ImGui.GetCursorScreenPos();
         var extent = new Vector2(size.X <= 0 ? ImGui.GetContentRegionAvail().X : size.X, size.Y);
         var colors = MaterialTheme.Current.Colors;
-        MaterialCanvas.Surface(min, min + extent, raised ? colors.SurfaceContainerHigh : colors.Surface, colors.Background, radius * MaterialTheme.Metrics.Scale);
-        ImGui.GetWindowDrawList().AddRect(min, min + extent, MaterialCanvas.Color(colors.OutlineVariant), radius * MaterialTheme.Metrics.Scale);
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2((padding ?? Padding) * MaterialTheme.Metrics.Scale));
+        if (MaterialTheme.Current.IsLcars) MaterialLcars.PanelFrame(min, min + extent, raised ? 2 : 1);
+        else
+        {
+            MaterialCanvas.Surface(min, min + extent, raised ? colors.SurfaceContainerHigh : colors.Surface, colors.Background, radius * MaterialTheme.Metrics.Scale);
+            ImGui.GetWindowDrawList().AddRect(min, min + extent, MaterialCanvas.Color(colors.OutlineVariant), radius * MaterialTheme.Metrics.Scale);
+        }
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, new Vector2(MaterialTheme.Current.IsLcars ? Math.Max(20, padding ?? Padding) : padding ?? Padding) * MaterialTheme.Metrics.Scale);
         ImGui.PushStyleColor(ImGuiCol.ChildBg, Vector4.Zero);
         try
         {
@@ -147,14 +157,15 @@ internal static class UiStyle
     internal static bool NativeButton(string native, string visible, Vector2 size, bool primary = false, MaterialIcon icon = MaterialIcon.None)
     {
         var toolbar = size.Y <= 0 && MaterialControls.Context != MaterialControlContext.Dense && ImGui.GetStyle().FramePadding.Y > 0;
-        using var height = toolbar ? MaterialText.PushLineHeight(visible) : default;
         using var controls = toolbar ? MaterialControls.Push(MaterialControlContext.Toolbar) : default;
+        using var height = toolbar ? MaterialText.PushLineHeight(visible) : default;
         var colors = MaterialTheme.Current.Colors;
+        using var primaryStyle = new MaterialStyleScope();
         if (primary)
         {
-            ImGui.PushStyleColor(ImGuiCol.Button, colors.PrimaryContainer);
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .25f));
-            ImGui.PushStyleColor(ImGuiCol.ButtonActive, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .4f));
+            primaryStyle.Color(ImGuiCol.Button, colors.PrimaryContainer);
+            primaryStyle.Color(ImGuiCol.ButtonHovered, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .25f));
+            primaryStyle.Color(ImGuiCol.ButtonActive, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .4f));
         }
         // Keep the raw label's native ID, including buttons predating keyed localization.
         var iconWidth = icon == MaterialIcon.None ? 0 : ImGui.GetFontSize() * 1.7f;
@@ -165,23 +176,29 @@ internal static class UiStyle
             size.Y = MaterialControlMetrics.Measure(MaterialTheme.Metrics, Math.Max(ImGui.GetTextLineHeight(), Math.Max(textSize.Y, iconSize)), MaterialControlContext.Toolbar).Height;
         else if (MaterialText.RequiresShaping(visible))
             size.Y = Math.Max(size.Y, textSize.Y + 2 * ImGui.GetStyle().FramePadding.Y);
+        using var lcars = MaterialLcars.NativeButtonStyle();
+        var ink = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
         ImGui.PushStyleColor(ImGuiCol.Text, Vector4.Zero);
         var pressed = ImGui.Button(native, size);
         ImGui.PopStyleColor();
-        if (primary) ImGui.PopStyleColor(3);
         var min = ImGui.GetItemRectMin(); var max = ImGui.GetItemRectMax();
         var position = min + new Vector2((max.X - min.X - textSize.X - iconWidth) * .5f, (max.Y - min.Y - textSize.Y) * .5f);
-        var ink = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
         if (ImGui.GetStyle().Alpha < 1) ink.W *= ImGui.GetStyle().Alpha;
         if (icon != MaterialIcon.None) MaterialIcons.Draw(icon, toolbar ? new Vector2(position.X, min.Y + (max.Y - min.Y - iconSize) * .5f) : position, iconSize, ink);
         MaterialText.AddText(ImGui.GetWindowDrawList(), ImGui.GetFont(), ImGui.GetFontSize(), position + new Vector2(iconWidth, 0), ImGui.ColorConvertFloat4ToU32(ink), visible);
+        MaterialLcars.Feedback(pressed);
         return pressed;
     }
 
     internal static bool NativeCheckbox(string native, ref bool value)
     {
         var visible = native.Split("##", 2)[0];
-        if (!MaterialText.RequiresShaping(visible)) return ImGui.Checkbox(native, ref value);
+        if (!MaterialText.RequiresShaping(visible))
+        {
+            var changedNative = ImGui.Checkbox(native, ref value);
+            MaterialLcars.Feedback(changedNative, MaterialUiSoundCue.Toggle);
+            return changedNative;
+        }
         using var height = MaterialText.PushLineHeight(visible);
         var text = MaterialText.Measure(visible);
         var suffix = native.IndexOf("###", StringComparison.Ordinal);
@@ -203,6 +220,7 @@ internal static class UiStyle
             try { MaterialText.AddText(draw, min + new Vector2(ImGui.GetFrameHeight() + ImGui.GetStyle().ItemInnerSpacing.X, (max.Y - min.Y - text.Y) * .5f), ink, visible); }
             finally { draw.PopClipRect(); }
         }
+        MaterialLcars.Feedback(changed, MaterialUiSoundCue.Toggle);
         return changed;
     }
 
