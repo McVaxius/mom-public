@@ -16,6 +16,7 @@ internal sealed class IntroductionWindow : Window
     private readonly AethertekUI.Dalamud.MaterialSupportLog supportLog = new();
     private readonly IDalamudPluginInterface supportPluginInterface;
     private readonly AethertekUI.Dalamud.MaterialWindowMotion motion = new();
+    private bool materialBackdropStylePushed;
     private readonly MaterialWindowOpacity windowOpacity = new();
     private const string DiscordUrl = "https://discord.gg/ac6gjDvR8R";
     private const string SupportUrl = "https://ko-fi.com/mcvaxius";
@@ -57,18 +58,33 @@ internal sealed class IntroductionWindow : Window
         ui.PrepareTitleBar(this, appearanceTitleBar);
         appearanceTitleBar.RefreshVisibility();
         UiStyle.ReserveImageTitleSpace(this, $"MOM v{BuildInfo.Version}");
+        if (MaterialTheme.Current.IsGlassmorphism || MaterialTheme.Current.IsSpatial || MaterialTheme.Current.IsCyberpunk)
+        {
+            ImGui.PushStyleColor(ImGuiCol.WindowBg, Vector4.Zero);
+            materialBackdropStylePushed = true;
+        }
         motion.Prepare(this, reducedMotion: false, roundedCorners: true);
     }
     public override void PostDraw()
     {
         motion.Restore(this);
+        ReleaseMaterialBackdropStyle();
         UiStyle.PaintTitleImage(this, $"MOM v{BuildInfo.Version}", icon);
         appearanceTitleBar.DrawPopups();
         ui.ApplyWindowOpacity(windowOpacity, WindowName);
     }
 
+    private void ReleaseMaterialBackdropStyle()
+    {
+        if (!materialBackdropStylePushed) return;
+        ImGui.PopStyleColor();
+        materialBackdropStylePushed = false;
+    }
+
     public override void Draw()
     {
+        ReleaseMaterialBackdropStyle();
+        MaterialSkin.Backdrop();
         motion.DrawChrome();
         var narrow = ImGui.GetWindowSize().X < 620 * ImGui.GetIO().FontGlobalScale;
         using var scale = ui.WindowBody(narrow);
@@ -170,17 +186,22 @@ internal sealed class IntroductionWindow : Window
             primaryStyle.Color(ImGuiCol.ButtonHovered, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .25f));
             primaryStyle.Color(ImGuiCol.ButtonActive, Vector4.Lerp(colors.PrimaryContainer, colors.Primary, .4f));
         }
-        using var lcars = MaterialLcars.NativeButtonStyle();
+        using var material = MaterialSkin.NativeButtonStyle();
         var captionInk = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
         ImGui.PushStyleColor(ImGuiCol.Text, Vector4.Zero);
         bool pressed;
-        try { pressed = ImGui.Button(native, size); }
+        try
+        {
+            using var face = MaterialSkin.TransparentButtonFace();
+            pressed = ImGui.Button(native, size);
+        }
         finally
         {
             ImGui.PopStyleColor();
         }
         var min = ImGui.GetItemRectMin();
         var max = ImGui.GetItemRectMax();
+        MaterialSkin.PaintButton(min, max, ImGui.GetStyle().Alpha);
         var centerY = (min.Y + max.Y) * .5f;
         var x = min.X + (max.X - min.X - textSize.X - logoWidth) * .5f;
         var alpha = ImGui.GetStyle().Alpha;

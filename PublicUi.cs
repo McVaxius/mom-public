@@ -124,7 +124,17 @@ internal sealed class PublicUi : IDisposable
                 T("Theme colour"), T("Choose each colour independently."), T("Background"), T("Controls"),
                 T("Text"), T("Aa  Preview text"), T("Control"),
                 T("Switch to Picker to set each colour yourself."), T("Switch back to Auto to use the automatic theme."))
-                { Lcars = T("LCARS"), LcarsHelp = T("LCARS panels, bars and controls") },
+            {
+                Lcars = T("LCARS"), LcarsHelp = T("LCARS panels, bars and controls"),
+                Glassmorphism = T("Glassmorphism"), Spatial = T("Spatial"), Cyberpunk = T("Cyberpunk"),
+                LcarsBar1 = T("LCARS bar 1"), LcarsBar2 = T("LCARS bar 2"), LcarsBar3 = T("LCARS bar 3"),
+                Reset = T("Reset"), ResetColors = T("Reset colours"),
+                Animation = T("Animation"), AnimationSpeed = T("Animation speed (0.1–10x; default 1x)"),
+                WaveColors = T("Wave colours"), GlassWave1 = T("Wave colour 1"),
+                GlassWave2 = T("Wave colour 2"), GlassWave3 = T("Wave colour 3"),
+                ResetWaveColors = T("Reset wave colours"),
+            },
+            new(), MaterialColorSettings.Rgb(0xA475FF),
             frameCompact ? 298 : 316)) return;
         preferences.Colors = colorDraft;
         if (colorDraft.Mode != MaterialColorMode.Lcars) { uiSounds?.Stop(); soundEnabled = false; }
@@ -156,19 +166,25 @@ internal sealed class PublicUi : IDisposable
             ImGui.OpenPopup("mom-public-window-appearance");
         }
         ImGui.SetNextWindowSize(new Vector2(0, 0), ImGuiCond.Appearing);
-        if (!ImGui.BeginPopup("mom-public-window-appearance")) return;
-        MaterialText.Text(T("Window appearance")); ImGui.Separator();
-        // Keep the moved colour action on its original root; new settings controls own popup IDs.
-        ImGuiP.PushOverrideID(root);
-        DrawColourEditor("mom-public-appearance");
-        ImGui.PopID();
-        var settingsCompact = preferences.Compact;
-        if (UiStyle.NativeCheckbox(T("Compact mode") + "###window-compact-settings", ref settingsCompact))
-        { preferences.Compact = settingsCompact; preferences.Save(); }
-        if (MaterialAppearanceSelector.DrawLanguage("mom-public-settings", ref language, options, 180))
-        { preferences.Language = language; preferences.Save(); }
-        DrawWindowSettings();
-        ImGui.EndPopup();
+        bool open;
+        using (MaterialSkin.BackdropStyle(popup: true)) open = ImGui.BeginPopup("mom-public-window-appearance");
+        if (!open) return;
+        try
+        {
+            MaterialSkin.Backdrop();
+            MaterialText.Text(T("Window appearance")); ImGui.Separator();
+            // Keep the moved colour action on its original root; new settings controls own popup IDs.
+            ImGuiP.PushOverrideID(root);
+            try { DrawColourEditor("mom-public-appearance"); }
+            finally { ImGui.PopID(); }
+            var settingsCompact = preferences.Compact;
+            if (UiStyle.NativeCheckbox(T("Compact mode") + "###window-compact-settings", ref settingsCompact))
+            { preferences.Compact = settingsCompact; preferences.Save(); }
+            if (MaterialAppearanceSelector.DrawLanguage("mom-public-settings", ref language, options, 180))
+            { preferences.Language = language; preferences.Save(); }
+            DrawWindowSettings();
+        }
+        finally { ImGui.EndPopup(); }
     }
 
     private void DrawWindowSettings()
@@ -235,7 +251,7 @@ internal sealed class PublicUi : IDisposable
     {
         using var heading = Font(UiFontRole.Heading);
         using var scale = new UiStyle.TextScale(25f * 11 / (13 * 18));
-        if (MaterialTheme.Current.IsLcars) MaterialLcars.PanelHeading(T(key), 1);
+        if (MaterialTheme.Current.IsLcars || MaterialTheme.Current.IsCyberpunk) MaterialSkin.Heading(T(key), 1);
         else Paragraph(key);
     }
     internal void Paragraph(string key) => Text(T(key));

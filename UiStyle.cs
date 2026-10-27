@@ -131,6 +131,20 @@ internal static class UiStyle
     internal static void Panel(string id, uint root, Vector2 size, Action draw, bool raised = false, float? padding = null, float radius = 4)
     {
         var callerFontSize = ImGui.GetFontSize();
+        var theme = MaterialTheme.Current;
+        if (theme.IsGlassmorphism || theme.IsSpatial || theme.IsCyberpunk)
+        {
+            using var panel = MaterialSurface.Begin(id, size / MaterialTheme.Metrics.Scale,
+                raised ? MaterialElevation.High : MaterialElevation.Low, padding: padding ?? Padding, radius: radius,
+                flags: ImGuiWindowFlags.HorizontalScrollbar);
+            if (panel.Visible)
+            {
+                using var textScale = new TextScale(callerFontSize / ImGui.GetFontSize());
+                ImGuiP.PushOverrideID(root);
+                try { draw(); } finally { ImGui.PopID(); }
+            }
+            return;
+        }
         var min = ImGui.GetCursorScreenPos();
         var extent = new Vector2(size.X <= 0 ? ImGui.GetContentRegionAvail().X : size.X, size.Y);
         var colors = MaterialTheme.Current.Colors;
@@ -158,6 +172,7 @@ internal static class UiStyle
     {
         var toolbar = size.Y <= 0 && MaterialControls.Context != MaterialControlContext.Dense && ImGui.GetStyle().FramePadding.Y > 0;
         using var controls = toolbar ? MaterialControls.Push(MaterialControlContext.Toolbar) : default;
+        var padding = ImGui.GetStyle().FramePadding;
         using var height = toolbar ? MaterialText.PushLineHeight(visible) : default;
         var colors = MaterialTheme.Current.Colors;
         using var primaryStyle = new MaterialStyleScope();
@@ -175,13 +190,24 @@ internal static class UiStyle
         if (toolbar)
             size.Y = MaterialControlMetrics.Measure(MaterialTheme.Metrics, Math.Max(ImGui.GetTextLineHeight(), Math.Max(textSize.Y, iconSize)), MaterialControlContext.Toolbar).Height;
         else if (MaterialText.RequiresShaping(visible))
-            size.Y = Math.Max(size.Y, textSize.Y + 2 * ImGui.GetStyle().FramePadding.Y);
-        using var lcars = MaterialLcars.NativeButtonStyle();
+            size.Y = Math.Max(size.Y, textSize.Y + 2 * padding.Y);
+        var theme = MaterialTheme.Current;
+        var material = theme.IsGlassmorphism || theme.IsSpatial || theme.IsCyberpunk;
+        var radius = ImGui.GetStyle().FrameRounding;
+        using var faceStyle = material ? MaterialSkin.NativeButtonStyle() : MaterialLcars.NativeButtonStyle();
+        using var rounding = new MaterialStyleScope();
+        if (material) rounding.Style(ImGuiStyleVar.FrameRounding, radius);
         var ink = ImGui.GetStyle().Colors[(int)ImGuiCol.Text];
-        ImGui.PushStyleColor(ImGuiCol.Text, Vector4.Zero);
-        var pressed = ImGui.Button(native, size);
-        ImGui.PopStyleColor();
+        var alpha = ImGui.GetStyle().Alpha;
+        bool pressed;
+        using (material ? MaterialSkin.TransparentButtonFace() : default)
+        {
+            ImGui.PushStyleColor(ImGuiCol.Text, Vector4.Zero);
+            try { pressed = ImGui.Button(native, size); }
+            finally { ImGui.PopStyleColor(); }
+        }
         var min = ImGui.GetItemRectMin(); var max = ImGui.GetItemRectMax();
+        if (material) MaterialSkin.PaintButton(min, max, alpha, radius);
         var position = min + new Vector2((max.X - min.X - textSize.X - iconWidth) * .5f, (max.Y - min.Y - textSize.Y) * .5f);
         if (ImGui.GetStyle().Alpha < 1) ink.W *= ImGui.GetStyle().Alpha;
         if (icon != MaterialIcon.None) MaterialIcons.Draw(icon, toolbar ? new Vector2(position.X, min.Y + (max.Y - min.Y - iconSize) * .5f) : position, iconSize, ink);
@@ -193,6 +219,14 @@ internal static class UiStyle
     internal static bool NativeCheckbox(string native, ref bool value)
     {
         var visible = native.Split("##", 2)[0];
+        var theme = MaterialTheme.Current;
+        if (theme.IsGlassmorphism || theme.IsSpatial || theme.IsCyberpunk)
+        {
+            var metrics = MaterialControls.Metrics;
+            var side = Math.Min(metrics.Height - 2 * MaterialTheme.Metrics.Scale, Math.Max(metrics.IconSize, ImGui.GetTextLineHeight()));
+            var width = side + (visible.Length == 0 ? 0 : metrics.Gap + MathF.Ceiling(MaterialText.Measure(visible).X) + 1);
+            return MaterialSelection.Checkbox(native, visible, ref value, width);
+        }
         if (!MaterialText.RequiresShaping(visible))
         {
             var changedNative = ImGui.Checkbox(native, ref value);
@@ -228,11 +262,15 @@ internal static class UiStyle
     {
         var visible = native.Split("##", 2)[0];
         var suffix = native.IndexOf("###", StringComparison.Ordinal);
-        if (!MaterialText.RequiresShaping(visible) || suffix < 0) return ImGui.InputInt(native, ref value);
-        var width = ImGui.CalcItemWidth();
-        MaterialText.Text(visible);
-        ImGui.SetNextItemWidth(width);
-        return ImGui.InputInt(native[suffix..], ref value);
+        if (MaterialText.RequiresShaping(visible) && suffix >= 0)
+        {
+            var width = ImGui.CalcItemWidth();
+            MaterialText.Text(visible);
+            ImGui.SetNextItemWidth(width);
+            native = native[suffix..];
+        }
+        using var field = MaterialSkin.NativeFieldStyle();
+        return ImGui.InputInt(native, ref value);
     }
 
     internal static bool NativeCombo(string native, ref int selected, string[] options, int count)
@@ -240,17 +278,27 @@ internal static class UiStyle
 
     internal static bool NativeComboWithAvailability(string native, ref int selected, string[] options, int count, string[]? displays, bool[]? disabled)
     {
-        if (displays is null && disabled is null && !options.Take(count).Any(MaterialText.RequiresShaping))
+        var theme = MaterialTheme.Current;
+        var material = theme.IsGlassmorphism || theme.IsSpatial || theme.IsCyberpunk;
+        var nativeOptions = displays is null && disabled is null && !options.Take(count).Any(MaterialText.RequiresShaping);
+        if (!material && nativeOptions)
             return ImGui.Combo(native, ref selected, options, count);
         var changed = false;
         var id = ImGui.GetID(native);
-        if (MaterialText.BeginCombo(native, selected >= 0 && selected < count ? displays?[selected] ?? options[selected] : ""))
+        bool open;
+        using (MaterialSkin.NativeFieldStyle())
+        using (MaterialSkin.BackdropStyle(popup: true))
+            open = MaterialText.BeginCombo(native, selected >= 0 && selected < count ? displays?[selected] ?? options[selected] : "");
+        if (open)
         {
             try
             {
+                MaterialSkin.Backdrop();
                 for (var index = 0; index < count; index++)
                 {
-                    ImGui.PushID(index);
+                    // Native Combo hashes an integer index; the managed overload hashes a pointer.
+                    if (nativeOptions) ImGuiNative.PushID(index);
+                    else ImGui.PushID(index);
                     try
                     {
                         var active = index == selected;

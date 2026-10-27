@@ -152,22 +152,31 @@ internal sealed class ManagedUiFonts : IDisposable
     internal static void DrawStatusWithRecovery(string message, Action? useEnglish, bool showEnglishRecovery = false)
     {
         ImGui.SetNextWindowSize(new System.Numerics.Vector2(450 * ImGui.GetIO().FontGlobalScale, 0));
-        statusMotion.PreDraw("MOM##FontStatus", null, null, reducedMotion: false, prepareDecorations: statusDecorations.Prepare);
-        if (ImGui.Begin("MOM##FontStatus", ImGuiWindowFlags.AlwaysAutoResize))
+        statusMotion.PreDraw("MOM##FontStatus", null, null, reducedMotion: !MaterialTheme.Current.Motion.Enabled, prepareDecorations: statusDecorations.Prepare);
+        bool open;
+        using (MaterialSkin.BackdropStyle()) open = ImGui.Begin("MOM##FontStatus", ImGuiWindowFlags.AlwaysAutoResize);
+        try
         {
-            statusDecorations.Paint();
-            if (MaterialTheme.Current.IsLcars) MaterialLcars.Header("MOM");
-            MaterialText.TextWrapped(message);
-            if (showEnglishRecovery || useEnglish is not null)
+            if (open)
             {
-                ImGui.BeginDisabled(useEnglish is null);
-                try { if (UiStyle.NativeButton("Use English", "Use English", default)) useEnglish?.Invoke(); }
-                finally { ImGui.EndDisabled(); }
+                MaterialSkin.Backdrop();
+                statusDecorations.Paint();
+                if (MaterialTheme.Current.IsLcars) MaterialLcars.Header("MOM");
+                MaterialText.TextWrapped(message);
+                if (showEnglishRecovery || useEnglish is not null)
+                {
+                    ImGui.BeginDisabled(useEnglish is null);
+                    try { if (UiStyle.NativeButton("Use English", "Use English", default)) useEnglish?.Invoke(); }
+                    finally { ImGui.EndDisabled(); }
+                }
             }
         }
-        ImGui.End();
-        statusDecorations.Paint();
-        statusMotion.PostDraw();
+        finally
+        {
+            ImGui.End();
+            statusDecorations.Paint();
+            statusMotion.PostDraw();
+        }
     }
     public void Dispose()
     {
