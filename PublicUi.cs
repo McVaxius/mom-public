@@ -67,6 +67,7 @@ internal sealed class PublicUi : IDisposable
         if (savedColors != preferences.Colors) { colorDraft = preferences.Colors; savedColors = preferences.Colors; }
         if (theme == null || accent != selected || appliedColors != colorDraft)
         { accent = selected; appliedColors = colorDraft; theme = UiStyle.Theme(selected, true, colorDraft); }
+        theme.HighlightContrastPercent = preferences.UiHighlightContrastPercent;
         theme.Density = frameCompact ? MaterialDensity.Compact : MaterialDensity.Standard;
         theme.Feedback = PlaySound;
         var enabled = theme.IsLcars && !preferences.UiLcarsSoundsMuted;
@@ -118,6 +119,18 @@ internal sealed class PublicUi : IDisposable
 
     private void DrawColourEditor(string id)
     {
+        var contrast = preferences.UiHighlightContrastPercent;
+        ImGui.PushID(id);
+        try
+        {
+            if (MaterialSettings.Field("##UiHighlightContrastPercent", T("Highlight contrast"), 180 * MaterialTheme.Metrics.Scale,
+                native => { using var field = MaterialSkin.NativeFieldStyle(); return ImGui.SliderInt(native, ref contrast, 0, 100, "%d%%", ImGuiSliderFlags.AlwaysClamp); }))
+                preferences.UiHighlightContrastPercent = contrast;
+            if (ImGui.IsItemDeactivatedAfterEdit()) preferences.Save();
+            MaterialText.Text(T("Makes controls and selection states more distinct."), Math.Max(1, ImGui.GetContentRegionAvail().X));
+            ImGui.Spacing();
+        }
+        finally { ImGui.PopID(); }
         if (!MaterialAppearanceSelector.DrawColors(id, ref colorDraft, ref accentDraft,
             new(T("Color"), T("Language"), T("Teal"), T("Blue"), T("Pink"), T("Custom RGB")),
             new(T("Auto"), T("Picker"), T("Default"), T("Background, controls and text follow your theme."),

@@ -14,6 +14,8 @@ internal sealed class PublicPreferences
     private DateTime observedWrite = DateTime.MinValue;
     internal uint Accent { get; set; } = 0xA475FF;
     internal MaterialColorSettings Colors { get; set; } = new();
+    private int uiHighlightContrastPercent = 50;
+    internal int UiHighlightContrastPercent { get => uiHighlightContrastPercent; set => uiHighlightContrastPercent = Math.Clamp(value, 0, 100); }
     internal bool UiLcarsSoundsMuted { get; set; } = true;
     internal bool Compact { get; set; } = true;
     internal string Language { get; set; } = "en";
@@ -38,6 +40,7 @@ internal sealed class PublicPreferences
         var root = Read();
         Accent = root["UiAccentRgb"]?.GetValue<uint>() ?? 0xA475FF;
         Colors = root["UiColors"]?.Deserialize<MaterialColorSettings>(colorJson) ?? new();
+        UiHighlightContrastPercent = root["UiHighlightContrastPercent"]?.GetValue<int>() ?? 50;
         UiLcarsSoundsMuted = root["UiLcarsSoundsMuted"]?.GetValue<bool>() ?? true;
         Compact = root["UiCompact"]?.GetValue<bool>() ?? true;
         Language = root["PublicUiLanguage"]?.GetValue<string>() ?? "en";
@@ -62,6 +65,7 @@ internal sealed class PublicPreferences
         var root = Read();
         root["UiAccentRgb"] = Accent; root["UiCompact"] = Compact; root["PublicUiLanguage"] = Language;
         root["UiColors"] = JsonSerializer.SerializeToNode(Colors);
+        root["UiHighlightContrastPercent"] = UiHighlightContrastPercent;
         root["UiLcarsSoundsMuted"] = UiLcarsSoundsMuted;
         root["UiCompactVisibleOnMainWindow"] = UiCompactVisibleOnMainWindow;
         root["UiTransparencyVisibleOnMainWindow"] = UiTransparencyVisibleOnMainWindow;

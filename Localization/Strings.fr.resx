@@ -110,4 +110,6 @@
   <data name="Wave colour 2" xml:space="preserve"><value>Couleur de vague 2</value></data>
   <data name="Wave colour 3" xml:space="preserve"><value>Couleur de vague 3</value></data>
   <data name="Reset wave colours" xml:space="preserve"><value>Réinitialiser les couleurs des vagues</value></data>
+  <data name="Highlight contrast" xml:space="preserve"><value>Contraste des surbrillances</value></data>
+  <data name="Makes controls and selection states more distinct." xml:space="preserve"><value>Rend les commandes et les états de sélection plus distincts.</value></data>
 </root>
