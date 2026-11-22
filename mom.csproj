@@ -40,6 +40,8 @@
     </ItemGroup>
     <Copy SourceFiles="@(_PublicPackageFiles)" DestinationFolder="$(_PublicPackageDir)" />
     <Copy SourceFiles="$(TargetDir)Notices/Glasswork.MIT.txt" DestinationFolder="$(_PublicPackageDir)Notices" />
+    <Copy SourceFiles="$(TargetDir)Fonts/Selawik/selawk.ttf;$(TargetDir)Fonts/Selawik/selawksb.ttf;$(TargetDir)Fonts/Selawik/selawkb.ttf;$(TargetDir)Fonts/Selawik/LICENSE.txt"
+          DestinationFolder="$(_PublicPackageDir)Fonts/Selawik" />
     <Copy SourceFiles="$(ProjectDir)$(AssemblyName).json" DestinationFolder="$(TargetDir)$(AssemblyName)" />
     <ZipDirectory SourceDirectory="$(_PublicPackageDir)" DestinationFile="$(TargetDir)$(AssemblyName)/latest.zip" Overwrite="true" />
   </Target>

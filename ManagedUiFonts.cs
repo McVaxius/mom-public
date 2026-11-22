@@ -1,5 +1,5 @@
-using Dalamud;
 using AethertekUI;
+using AethertekUI.Dalamud;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.ManagedFontAtlas;
@@ -14,6 +14,7 @@ internal sealed class ManagedUiFonts : IDisposable
 {
     private readonly IFontAtlas atlas;
     private readonly MaterialTextRenderer shapedText;
+    private readonly string assetRoot;
     private static readonly MaterialWindowFold statusMotion = new();
     private static readonly MaterialWindowDecorations statusDecorations = new();
     private IFontHandle[] handles = [];
@@ -29,8 +30,8 @@ internal sealed class ManagedUiFonts : IDisposable
     private int checkedGeneration = -1;
     private Exception? glyphError;
     internal bool HindiAvailable { get; private set; }
-    internal ManagedUiFonts(IUiBuilder builder, string label, MaterialTextRenderer shapedText, bool publicHost = false)
-    { this.shapedText = shapedText; this.publicHost = publicHost; atlas = builder.CreateFontAtlas(FontAtlasAutoRebuildMode.Async, true, label); }
+    internal ManagedUiFonts(IUiBuilder builder, string label, MaterialTextRenderer shapedText, string assetRoot, bool publicHost = false)
+    { this.shapedText = shapedText; this.assetRoot = assetRoot; this.publicHost = publicHost; atlas = builder.CreateFontAtlas(FontAtlasAutoRebuildMode.Async, true, label); }
     internal Exception? Error => glyphError ?? handles.Concat(bodyHandles).FirstOrDefault(h => h.LoadException != null)?.LoadException;
     internal void Prepare(string selected, IEnumerable<string> strings)
         => PrepareForDensity(selected, strings, compact);
@@ -48,30 +49,16 @@ internal sealed class ManagedUiFonts : IDisposable
         glyphError = null; checkedGeneration = -1;
         HindiAvailable = false;
         var created = new List<IFontHandle>();
-        IFontHandle Create(float size, string file)
+        IFontHandle Create(float size, MaterialFontWeight weight)
         {
-            var handle = atlas.NewDelegateFontHandle(step => step.OnPreBuild(build =>
-            {
-                build.NewImAtlas.TexDesiredWidth = 4096;
-                build.NewImAtlas.TexDesiredHeight = 4096;
-                build.Font = build.AddFontFromFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), file),
-                    new SafeFontConfig { SizePx = size, GlyphRanges = ranges });
-                build.AddFontFromFile(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Fonts), "seguisym.ttf"),
-                    new SafeFontConfig { SizePx = size, MergeFont = build.Font, GlyphRanges = ranges });
-                // Verified bundled TTC faces: JP=0, KR=1, SC=2, TC=3.
-                build.AddDalamudAssetFont(DalamudAsset.NotoSansCjkRegular,
-                    new SafeFontConfig { SizePx = size, MergeFont = build.Font, GlyphRanges = ranges,
-                        FontNo = selected switch { "ko" => 1, "zh-Hans" or "zh-CN" => 2, "zh-Hant" or "zh-TW" => 3, _ => 0 } });
-                build.AttachExtraGlyphsForDalamudLanguage(new SafeFontConfig { SizePx = size, MergeFont = build.Font });
-                build.AddGameSymbol(new SafeFontConfig { SizePx = size, MergeFont = build.Font });
-            }));
+            var handle = MaterialFontAtlas.CreateFont(atlas, weight, size, ranges, selected, assetRoot);
             created.Add(handle);
             return handle;
         }
         try
         {
-            handles = UiStyle.FontSizes.Select((pointSize, index) => Create(pointSize * 4 / 3, UiStyle.FontFiles[index])).ToArray();
-            bodyHandles = BodySizes().Select(size => Create(size, UiStyle.FontFiles[(int)UiFontRole.Body])).ToArray();
+            handles = UiStyle.FontSizes.Select((pointSize, index) => Create(pointSize * 4 / 3, UiStyle.FontWeights[index])).ToArray();
+            bodyHandles = BodySizes().Select(size => Create(size, UiStyle.FontWeights[(int)UiFontRole.Body])).ToArray();
             foreach (var handle in created) handle.ImFontChanged += Changed;
         }
         catch (Exception error)

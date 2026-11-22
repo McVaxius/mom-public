@@ -36,7 +36,8 @@ internal sealed class PublicUi : IDisposable
     private bool soundEnabled;
     internal PublicUi(IDalamudPluginInterface pi, ITextureProvider textures)
     {
-        preferences = new(pi); shapedText = new(textures); fonts = new(pi.UiBuilder, "MOM public interface", shapedText.Renderer, publicHost: true);
+        preferences = new(pi); shapedText = new(textures);
+        fonts = new(pi.UiBuilder, "MOM public interface", shapedText.Renderer, pi.AssemblyLocation.DirectoryName!, publicHost: true);
         foreach (var language in Languages)
         {
             var stream = typeof(PublicUi).Assembly.GetManifestResourceStream("mom.PublicShell.Strings." + language.Code + ".resources")
