@@ -18,7 +18,8 @@ internal sealed class PublicUi : IDisposable
     private readonly PublicPreferences preferences;
     private readonly MaterialWindowOpacity fontStatusOpacity = new();
     private readonly ManagedUiFonts fonts;
-    private readonly MaterialTextHost shapedText;
+    private readonly ITextureProvider textures;
+    private MaterialTextHost? shapedText;
     private readonly Dictionary<string, ResourceSet> sets = [];
     private ResourceSet current = null!;
     private MaterialTheme? theme;
@@ -36,8 +37,9 @@ internal sealed class PublicUi : IDisposable
     private bool soundEnabled;
     internal PublicUi(IDalamudPluginInterface pi, ITextureProvider textures)
     {
-        preferences = new(pi); shapedText = new(textures);
-        fonts = new(pi.UiBuilder, "MOM public interface", shapedText.Renderer, pi.AssemblyLocation.DirectoryName!, publicHost: true);
+        preferences = new(pi);
+        this.textures = textures;
+        fonts = new(pi.UiBuilder, "MOM public interface", null, pi.AssemblyLocation.DirectoryName!, publicHost: true);
         foreach (var language in Languages)
         {
             var stream = typeof(PublicUi).Assembly.GetManifestResourceStream("mom.PublicShell.Strings." + language.Code + ".resources")
@@ -57,6 +59,8 @@ internal sealed class PublicUi : IDisposable
     internal void RequestAppearance() => appearanceRequested = true;
     internal void Draw(Action draw, Action<Exception> report)
     {
+        shapedText ??= new(textures);
+        fonts.ShapedText = shapedText.Renderer;
         using var shaping = shapedText.Push();
         preferences.Reload();
         var language = sets.ContainsKey(preferences.Language) ? preferences.Language : "en";
@@ -302,5 +306,21 @@ internal sealed class PublicUi : IDisposable
         if (lcars && !owner.TitleBarButtons.Contains(soundButton)) owner.TitleBarButtons.Add(soundButton);
         else if (!lcars) owner.TitleBarButtons.Remove(soundButton);
     }
-    public void Dispose() { uiSounds?.Dispose(); fonts.Dispose(); shapedText.Dispose(); foreach (var set in sets.Values) set.Dispose(); }
+    internal void ReleaseWindowResources()
+    {
+        fonts.Release();
+        fonts.ShapedText = null;
+        shapedText?.Dispose();
+        shapedText = null;
+        uiSounds?.Dispose();
+        uiSounds = null;
+        soundEnabled = false;
+        loggedFontIssue = false;
+    }
+
+    public void Dispose()
+    {
+        ReleaseWindowResources();
+        foreach (var set in sets.Values) set.Dispose();
+    }
 }

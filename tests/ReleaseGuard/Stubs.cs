@@ -192,6 +192,7 @@ namespace mom.PublicShell
     {
         public PublicUi(IDalamudPluginInterface pi, ITextureProvider textures) => State.Current.PresentationCreates++;
         public void Draw(Action draw, Action<Exception> error) => draw();
+        public void ReleaseWindowResources() { }
         public void Dispose() => State.Current.PresentationDisposals++;
     }
     internal static class AppearancePreferences { public static void Initialize(Func<object> load, Action<object> save) { } }

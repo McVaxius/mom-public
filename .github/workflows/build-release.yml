@@ -34,8 +34,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: McVaxius/aethertekUI
-          # AethertekUI 0.3.2: shared Highlight Contrast controls.
-          ref: a902c6714d9ea655dd41931f737390e2f1159b93
+          # AethertekUI 0.3.8 for on-demand UI resources.
+          ref: 8e14e0e8385bfcaaa815ed28bdd470aed31391bf
           path: aethertekUI
           # Repository-specific read-only SSH deploy key; no expiration.
           ssh-key: ${{ secrets.AETHERTEKUI_DEPLOY_KEY }}
